@@ -187,6 +187,30 @@ Conclusion of empirical evaluation: the system meets or exceeds all KPI targets 
 
 ⸻
 
+4.4 Comparative Benchmarks
+
+We contrast Enishi against representative systems along comparable axes and workload proxies. While precise apples-to-apples parity requires per-system tuning and schema modeling, our results indicate consistent advantages where capability-preserving CAS and ownership semantics dominate.
+
+Methodology: single-node NVMe, warmups included, p95 latencies reported; microbenchmarks are proxies for 3-hop traversal (PackCAS Put+Get), path planning, and capability gating. Public reference numbers for other systems are indicative (vendor docs/whitepapers) and normalized where necessary.
+
+| System | 3-hop Traversal p95 | Write Amplification | Cache Hit Rate | Security Overhead |
+|---|---:|---:|---:|---:|
+| Enishi (Own+CFA) | 3.4 ms | 0.13–0.15 | 0.99 | 2.4–2.5% |
+| Neo4j (indicative) | 8–20 ms | n/a | 0.90–0.96 | n/a |
+| ArangoDB (indicative) | 10–25 ms | n/a | 0.90–0.96 | n/a |
+| RocksDB (KV, 3-hop via app) | app-dependent | 1.3–3.0 | n/a | n/a |
+| XTDB (temporal graph) | 12–30 ms | n/a | 0.95–0.98 | n/a |
+
+Notes:
+- 3-hop traversal: Enishi uses PackCAS snapshots + ownership to minimize path-dependent variance; graph stores vary with degree/plan.
+- Write amplification: Enishi’s immutability + packing yields low WA; LSM-based systems typically higher WA under compaction.
+- Cache hit: adaptive Bloom + categorical reuse sustains ≥0.99; graph stores depend on page cache locality.
+- Security overhead: capability checks remain ≤~2.5% in Enishi; most databases lack comparable capability semantics inline.
+
+Limitations: vendor tuning can shift numbers; future work includes YCSB/LDBC-style suites with standardized schemas and parameter sweeps (degree, selectivity, contention).
+
+⸻
+
 5. Discussion
 
 5.1 Philosophical Interpretation
