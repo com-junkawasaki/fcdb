@@ -201,14 +201,14 @@ Security Overhead & $\leq 10\%$ & $2.47\%$ & -7.5\% \\
 \label{tab:perf_results}
 \end{table}
 
-The benchmarks show low latency for core operations, with PackCAS (put/get) and 3-hop traversals averaging 3.40ms, and capability checks adding minor overhead (\~1.36ms). All reported operations met their targets with comfortable margins in our setup. We refrain from system-wide claims beyond the tested scope and refer to artifact-based reproduction for external verification.
+The benchmarks show low latency for core operations, with PackCAS (put/get) and 3-hop traversals averaging 3.40ms, and capability checks adding minor overhead ($(\sim 1.36\,\mathrm{ms})$). All reported operations met their targets with comfortable margins in our setup. We refrain from system-wide claims beyond the tested scope and refer to artifact-based reproduction for external verification.
 
 \subsection{Experimental Setup and Reproducibility}
 \textbf{Environment.} Single-node NVMe host. CPU/cores/frequency, memory size, NVMe model, OS/Kernel, filesystem, and governor are enumerated in the artifact manifest; BIOS/firmware mitigations are listed in the supplement.
 
 \textbf{Workloads.} Synthetic graphs with power-law degree (Barab\'asi--Albert) and configurable clustering; key/value sizes, read:write ratios, Zipf coefficient $\alpha$, and hot-set fractions are specified in the artifact configuration.
 
-\textbf{Procedure.} Warm-up operations precede a steady-state window; multiple trials are performed with mean and 95\% confidence intervals reported; top/bottom 1\% are trimmed as outliers. Scripts: \texttt{validation/validation_runner.rs}, \texttt{validation/performance_benchmarks.rs}, \texttt{loadtest/k6_3hop.js}.
+\textbf{Procedure.} Warm-up operations precede a steady-state window; multiple trials are performed with mean and 95\% confidence intervals reported; top/bottom 1\% are trimmed as outliers. Scripts: \texttt{\detokenize{validation/validation_runner.rs}}, \texttt{\detokenize{validation/performance_benchmarks.rs}}, \texttt{\detokenize{loadtest/k6_3hop.js}}.
 
 \textbf{Artifacts.} Commit hash, config files, and scripts are archived. See Appendix~\ref{app:repro}.
 
@@ -300,14 +300,14 @@ It preserves information via natural transformations and approaches commutative 
 
 \section{Critical Checklist (Anticipating Peer Review)}
 \begin{itemize}
-    \item \textbf{Verifiability of Hypothesis:} How can the anti-commutativity reduction (4/6 → 1/6) be verified through experimental design?
+    \item \textbf{Verifiability of Hypothesis:} How can the anti-commutativity reduction (4/6 $\to$ 1/6) be verified through experimental design?
     \item \textbf{Observation Metrics:} Preservation rate, frequency of anti-commutativity, Hcache, WA/SA, tail p99.5.
     \item \textbf{Alternative Hypotheses:} Can a similar level of preservation be achieved with only a Functor or only a Category? (Search for counterexamples)
 \end{itemize}
 
 \section{Reproducibility Artifacts}\label{app:repro}
 \begin{itemize}[nosep]
-    \item Scripts: \texttt{validation/validation_runner.rs}, \texttt{validation/performance_benchmarks.rs}, \texttt{loadtest/k6_3hop.js}
+    \item Scripts: \texttt{\detokenize{validation/validation_runner.rs}}, \texttt{\detokenize{validation/performance_benchmarks.rs}}, \texttt{\detokenize{loadtest/k6_3hop.js}}
     \item Config: hardware/software manifest, workload parameters, random seeds
     \item Procedure: warm-up, window, trials, CI computation, outlier policy
     \item Outputs: CSV logs for latency/throughput, WA/SA, anti-commutativity counts

@@ -10,8 +10,8 @@ keywords = ["database", "graph", "traversal", "rdf"]
 categories = ["data-structures", "database-implementations"]
 
 [dependencies]
-fcdb-core = { path = "../fcdb-core" }
-fcdb-cas = { path = "../fcdb-cas" }
+fcdb-core = "0.1.0"
+fcdb-cas = "0.1.0"
 
 # Data structures
 serde = { version = "1.0", features = ["derive"] }

@@ -10,7 +10,7 @@ keywords = ["database", "query", "execution", "engine"]
 categories = ["database-implementations"]
 
 [dependencies]
-fcdb-core = { path = "../fcdb-core" }
+fcdb-core = "0.1.0"
 serde = { version = "1.0", features = ["derive"] }
 rand = "0.8"
 bloom = "0.3"
