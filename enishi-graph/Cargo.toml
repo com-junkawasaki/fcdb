@@ -1,0 +1,20 @@
+[package]
+name = "enishi-graph"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+enishi-core = { path = "../enishi-core" }
+enishi-cas = { path = "../enishi-cas" }
+
+# Data structures
+serde = { version = "1.0", features = ["derive"] }
+
+# Async runtime
+tokio = { version = "1.0", features = ["sync"] }
+
+# Logging
+tracing = "0.1"

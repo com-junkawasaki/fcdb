@@ -1,0 +1,26 @@
+[package]
+name = "enishi-cas"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+enishi-core = { path = "../enishi-core" }
+
+# File I/O and async
+tokio = { version = "1.0", features = ["fs", "io-util"] }
+futures = "0.3"
+
+# Bloom filters
+bloom = "0.3"
+
+# CRC for data integrity
+crc32fast = "1.3"
+
+# Memory mapping for performance
+memmap2 = "0.9"
+
+# Logging
+tracing = "0.1"

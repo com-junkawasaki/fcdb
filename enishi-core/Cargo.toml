@@ -1,0 +1,23 @@
+[package]
+name = "enishi-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Cryptographic hashing
+blake3 = "1.5"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+
+# JSON Canonicalization (JCS)
+serde_json = "1.0"
+
+# Random number generation for nonces/proofs
+rand = "0.8"
+
+# For varint encoding/decoding
+integer-encoding = "3.0"
