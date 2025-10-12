@@ -39,7 +39,7 @@ impl std::fmt::Display for Rid {
 }
 
 /// Edge label/type identifier
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct LabelId(pub u32);
 
 impl LabelId {
@@ -49,7 +49,7 @@ impl LabelId {
 }
 
 /// Temporal timestamp for versioning
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Timestamp(pub u64);
 
 impl Timestamp {
@@ -96,17 +96,6 @@ pub struct Posting {
     pub timestamp: Timestamp,
 }
 
-impl Monoid for Vec<Posting> {
-    fn empty() -> Self {
-        Vec::new()
-    }
-
-    fn combine(mut self, other: Self) -> Self {
-        self.extend(other);
-        self.sort_by_key(|p| (p.term.clone(), p.rid, p.timestamp));
-        self
-    }
-}
 
 /// RID to CID mapping with temporal support
 #[derive(Clone, Debug)]
