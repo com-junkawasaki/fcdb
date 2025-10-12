@@ -4,7 +4,7 @@
 //!
 //! Merkle DAG: enishi_cas -> pack_cas, cidx, bloom_filters, wal, gc
 
-use enishi_core::{Cid, varint};
+use fcdb_core::{Cid, varint};
 use std::collections::HashMap;
 use std::fs::{File, OpenOptions};
 use std::io::{self, Read, Write, Seek, SeekFrom};
@@ -110,7 +110,7 @@ pub struct BloomFilters {
 impl BloomFilters {
     pub fn new() -> Self {
         Self {
-            global: BloomFilter::with_rate(BloomConfig::default().fp_rate, BloomConfig::default().expected_items),
+            global: BloomFilter::with_rate(BloomConfig::default().fp_rate as f32, BloomConfig::default().expected_items as u32),
             pack_filters: HashMap::new(),
             shard_filters: HashMap::new(),
         }
@@ -357,7 +357,7 @@ impl PackCAS {
 
     /// Close current pack
     async fn close_current_pack(&mut self) -> io::Result<()> {
-        if let Some(writer) = self.current_pack.take() {
+        if let Some(mut writer) = self.current_pack.take() {
             writer.file.flush()?;
             info!("Closed pack {}", writer.pack_id);
         }
