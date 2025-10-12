@@ -1,0 +1,22 @@
+[package]
+name = "enishi-validation"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+rand = "0.8"
+statrs = "0.16"
+
+# For async traits
+async-trait = "0.1"
+
+# For error handling
+thiserror = "1.0"
+
+[[bin]]
+name = "validation_runner"
+path = "validation_runner.rs"
