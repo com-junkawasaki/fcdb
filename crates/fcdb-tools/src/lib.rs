@@ -218,21 +218,9 @@ pub async fn measure_phase_a_kpis(base_path: &std::path::Path) -> Result<PhaseAK
     // Write amplification (simplified - would need storage metrics)
     let write_amplification = 1.15; // Placeholder
 
-    // 25MB blob latency
-    info!("Measuring 25MB blob operations");
-    let blob_data = vec![0u8; 25 * 1024 * 1024];
-    let mut blob_latencies = Vec::new();
-    {
-        let graph = graph.read().await;
-        let cas = &graph.cas; // Assuming we can access CAS
-        for _ in 0..10 {
-            let start = Instant::now();
-            // Note: This would need to be adapted to actual CAS interface
-            // let cid = cas.put(&blob_data, 2, PackBand::Blob).await?;
-            // let _ = cas.get(&cid).await?;
-            blob_latencies.push(start.elapsed().as_secs_f64() * 1000.0);
-        }
-    }
+    // 25MB blob latency - temporarily disabled due to private API access
+    info!("Skipping 25MB blob operations (requires GraphDB API changes)");
+    let blob_latencies = Vec::new();
     let blob_25mb_latency_ms = if blob_latencies.is_empty() { 25.0 } else {
         blob_latencies.iter().sum::<f64>() / blob_latencies.len() as f64
     };
