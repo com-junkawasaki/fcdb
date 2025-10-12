@@ -145,6 +145,12 @@ Idempotence ($f\circ f=f$) via immutable CAS; monoid associativity in PackCAS;
 natural transformation ($F(Cap\triangleright X)=Cap\triangleright F(X)$);
 adjoint pair (borrow $\dashv$ own); cartesian closedness for query algebra.
 
+\subsection{Objects, Morphisms, and Equivalences}
+\textbf{Objects.} In the graph responsibility category $\mathcal{G}$, objects are observable graph states $(V,E,\ell)$ with labeling $\ell$; in the categorical core $\mathcal{C}$, objects are persistent snapshots (content-addressed stores with capability annotations).
+\textbf{Morphisms.} In $\mathcal{G}$, morphisms are traversals or read-only queries; in $\mathcal{C}$, morphisms are update sequences respecting ownership and capability constraints.
+\textbf{Adjunction data.} The functor $F\!:\mathcal{G}\to\mathcal{C}$ maps observations to commits; the right adjoint realizes graph views of categorical states. Units/counits are defined over snapshot formation and view extraction.
+\textbf{Equivalences.} We write $S_1\sim S_2$ for \,\emph{snapshot observational equivalence}, i.e., equality of invariants used by the query algebra (path-insensitive content hashes, capability scopes, and ownership regions). Measurements of commutativity are taken modulo $\sim$.
+
 \subsection{Complexity Assumptions and the $O(1{+}\varepsilon)$ Read Bound}
 We state the assumptions under which the stated bounds hold and define $\varepsilon$.
 \begin{itemize}[nosep]
@@ -207,6 +213,8 @@ The benchmarks show low latency for core operations, with PackCAS (put/get) and 
 \textbf{Artifacts.} Commit hash, config files, and scripts are archived. See Appendix~\ref{app:repro}.
 
 \subsection{Anti-commutativity Measurement: Design and Results}
+\paragraph{Measurement definitions.}
+\emph{Event classes} by projection: insert/delete ($\pi_1$), merge/compact ($\pi_2$), traverse/update ($\pi_3$), put/get ($\pi_4$), grant/revoke ($\pi_5$), own/borrow ($\pi_6$). For two events $(e_i,e_j)$, define non-commutativity iff $e_i\circ e_j\not\sim e_j\circ e_i$ where $\sim$ is snapshot observational equivalence. Frequencies are measured over fixed horizons with repetitions; we report proportions and confidence intervals.
 \begin{theorem}[Anti-commutativity reduction under Own+CFA]
 Assume: (i) exclusive ownership for writes; (ii) capability lattice with monotone downgrade; (iii) immutable CAS with idempotent put/get; (iv) bounded-degree traversal with cache hit probability $H_{cache}$ and compaction maintaining fragment bound $k$. Then the set of non-commutative projection pairs across $\{\pi_1..\pi_6\}$ reduces from four layers to one residual boundary at $\pi_5$ (grant/revoke), i.e., $|\{\pi_i:\text{non-comm.}\}|=1$.
 \end{theorem}

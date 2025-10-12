@@ -71,7 +71,7 @@ impl Cap {
 }
 
 /// Query Key for caching and indexing
-#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct QKey {
     pub path_sig: Cid,
     pub class_sig: Cid,
@@ -88,8 +88,8 @@ pub trait Monoid {
 
 /// Varint encoding utilities
 pub mod varint {
-    use integer_encoding::{VarInt, VarIntReader, VarIntWriter};
-    use std::io::{Read, Write};
+    use integer_encoding::{VarIntReader, VarIntWriter};
+    use std::io::Read;
 
     pub fn encode_u64(value: u64, buf: &mut Vec<u8>) {
         buf.write_varint(value).unwrap();
