@@ -2,7 +2,8 @@
 members = [
     "crates/fcdb-core",
     "crates/fcdb-exec",
-    "crates/fcdb-concur"
+    "crates/fcdb-concur",
+    "crates/fcdb-cas"
 ]
 resolver = "2"
 
