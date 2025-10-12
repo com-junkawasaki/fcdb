@@ -1,5 +1,5 @@
 # arXiv submission manifest
-# Generated: 2025-10-13T00:25:11+09:00
+# Generated: 2025-10-13T00:57:21+09:00
 
 README.md
 main.tex
