@@ -20,8 +20,8 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 
-\title{FCDB (Enishi): A Functorial–Categorical Capability-Addressed Database\\
-\large The 9th Lineage beyond B-Tree, LSM, Graph, and Blob}
+\title{Functorial–Categorical Database: A Compositional Framework for Information Preservation and Anti-Commutativity Reduction\\
+\large A Categorical Projection Algebra Bridging Ownership, Capability, and Commutative Limits}
 \author{Jun Kawasaki}
 \date{}
 
@@ -29,15 +29,19 @@
 \maketitle
 
 \begin{abstract}
-We formalize \textbf{Enishi}, a \emph{Functorial--Categorical Database} that separates
-\emph{graph responsibility} (observation) from \emph{categorical authority} (persistence),
-and composes Ownership, Capability, CAS, and Graph as a double categorical system.
-Enishi constitutes a ``9th lineage'' that does not fit existing core DB layers: it
-functorially integrates Hash/Trie, Append-only, Graph, and Blob, aiming for content immutability,
-capability safety, schema-less graph traversal, and temporal coherence.
-We formalize preservation laws across information projections, provide an experimental design,
-and empirically indicate a reduction in anti-commutativity from $4/6$ to $1/6$ under stated
-assumptions. We position Enishi relative to Unison, Datomic/XTDB, and Maude.
+Conventional database architectures often secure local consistency by discarding information, thereby entangling correctness with loss. Non-commuting pairs such as insert$\circ$delete, merge$\circ$compact, and grant$\circ$revoke expose intrinsic anti-commutativity arising from partial projections across heterogeneous data topologies. We introduce the Functorial--Categorical Database (FCDb), a unifying framework that reinterprets these operations as morphisms in a layered functor category, making explicit the conditions under which commutativity emerges without sacrificing semantics.
+
+FCDb formalizes a Complete Preserving Family (CPF) of projections $\{\pi_i\}$ spanning: local order (B+Tree), temporal history (append-only/LSM), adjacency (Graph), content invariance (CAS), capability (CHERI-like), and ownership (Rust-like). Each $\pi_i$ is a preserving functor between enriched subcategories; together they define an Information Projection Algebra (IPA) in which the composite
+\[
+\mathcal{F} = \mathsf{Own} \circ \mathsf{Cap} \circ \mathsf{CAS} \circ \mathsf{Graph} \circ \mathsf{Append} \circ \mathsf{BTree}
+\]
+maps data processes to morphisms that preserve content and authority invariants. Under adjoint lifts and suitable fibred structure, all operational pairs commute in the categorical limit except grant/revoke, whose residual non-commutativity serves as an ethical margin that enforces safety and responsibility boundaries rather than an implementation artifact.
+
+Geometrically, FCDb aligns with information geometry: each $\pi_i$ acts as an information projection in the sense of Amari, and the CPF approximates geodesic compatibility across semantic, temporal, and relational coordinates. Categorically, FCDb is modeled as a fibred category whose morphisms preserve local order, monotone histories, and ownership integrity, thereby approaching a commutative limit without discarding semantic, temporal, or relational entropy. We argue that FCDb constitutes a new class of morphological databases in which logical structure, capability constraints, and ownership semantics cohere functorially.
+
+Implications include a principled path to post-relational designs, type-safe information systems, and formalized computational ethics. Limitations concern the cost of maintaining full projections under high concurrency, the need for precise adjunctions to guarantee preservation, and domain-specific edge cases where ethical constraints inherently prevent full commutativity. We outline falsifiable predictions for performance and recoverability, and we sketch an empirical agenda for validating CPF completeness in real systems.
+
+\textbf{Keywords}: category theory, information geometry, ownership, capabilities, content addressing, commutativity, adjunctions, fibred categories, morphological databases.
 \end{abstract}
 
 \section{Introduction}
@@ -270,6 +274,17 @@ When append-only snapshots maintain bounded fragment count $k$, merge/compact se
 \section{Discussion \& Limitations}
 Depth induces tuning complexity; SRE observability must include preservation/anti-commutativity metrics.
 Provide kill-criteria for each optimization (gain $<\!5\%$ or tail degradation $>\!10\%$).
+
+\paragraph{Critical points for validation and scope.}
+\begin{itemize}[nosep,leftmargin=*]
+    \item \textbf{Ethical kernel vs. technical residue:} Substantiate that grant/revoke is the sole residual non-commutativity by separating normative constraints from structural ones; contrast with CRDT merge edge cases.
+    \item \textbf{Completeness of CPF:} Demonstrate that $\{\pi_i\}$ is minimally sufficient and jointly conservative for targeted invariants; provide counterexamples where omitting any $\pi_i$ reintroduces loss or spurious non-commutativity.
+    \item \textbf{Adjunctions and naturality:} Specify adjoint pairs and naturality conditions guaranteeing preservation across layers; enumerate failure modes when these conditions are violated.
+    \item \textbf{Empirical agenda:} Benchmarks to quantify commutativity recovery, rollback fidelity, and information retention versus MVCC+WAL, CRDT stores, and event-sourced systems.
+    \item \textbf{Scalability and cost:} Characterize asymptotics and identify regimes where partial materialization preserves categorical guarantees with acceptable overhead.
+    \item \textbf{Deletion and compliance:} Reconcile information preservation with regulatory erasure via categorical redaction functors that retain proofs of deletion without content.
+    \item \textbf{Interoperability:} Clarify composition with monadic/arrowized effects, lenses/optics for views, and coalgebraic history models.
+\end{itemize}
 
 \section{Conclusion}
 Enishi constitutes a \emph{Functorial--Categorical DB}: the ninth lineage combining Graph, CAS, Capability, and Ownership.
