@@ -1,5 +1,14 @@
 [workspace]
-members = ["fcdb-core", "fcdb-exec", "fcdb-concur", "fcdb-api", "fcdb-cas", "fcdb-graph", "fcdb-tools", "fcdb-validation"]
+members = [
+    "crates/fcdb-core",
+    "crates/fcdb-exec",
+    "crates/fcdb-concur",
+    "crates/fcdb-api",
+    "crates/fcdb-cas",
+    "crates/fcdb-graph",
+    "crates/fcdb-tools",
+    "crates/fcdb-validation"
+]
 resolver = "2"
 
 [workspace.package]

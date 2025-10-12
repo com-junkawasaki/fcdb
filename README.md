@@ -36,7 +36,15 @@ The project is composed of several Rust crates:
 ```
 fcdb/
 ├── src/                    # Main application source
-├── fcdb-*/                 # Rust crates
+├── crates/                 # All Rust crates
+│   ├── fcdb-api/          # Public API
+│   ├── fcdb-cas/          # Content-Addressable Storage
+│   ├── fcdb-concur/       # Concurrency primitives
+│   ├── fcdb-core/         # Core data structures
+│   ├── fcdb-exec/         # Query execution engine
+│   ├── fcdb-graph/        # Graph operations
+│   ├── fcdb-tools/        # Helper tools and utilities
+│   └── fcdb-validation/   # Validation and benchmarking
 ├── examples/               # Demo and example code
 ├── docs/                   # Documentation
 │   ├── api/               # API documentation
