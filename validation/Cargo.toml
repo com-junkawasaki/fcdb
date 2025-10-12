@@ -17,6 +17,9 @@ async-trait = "0.1"
 # For error handling
 thiserror = "1.0"
 
+# For command line argument parsing
+clap = { version = "4.0", features = ["derive"] }
+
 [[bin]]
 name = "validation_runner"
 path = "validation_runner.rs"

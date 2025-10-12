@@ -6,6 +6,7 @@
 use std::collections::HashMap;
 use std::time::Instant;
 use tokio;
+use clap::{Parser, Subcommand};
 
 mod mathematical_properties;
 mod performance_benchmarks;
@@ -49,6 +50,79 @@ pub enum ValidationStatus {
     Passed,
     Warning,
     Failed,
+}
+
+/// Command line interface for validation runner
+#[derive(Parser)]
+#[command(name = "validation_runner")]
+#[command(about = "Run validation and performance benchmarks for Enishi")]
+pub struct Cli {
+    #[command(subcommand)]
+    pub command: Commands,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+    /// Run full validation suite
+    Full {
+        /// Number of iterations for performance tests
+        #[arg(short, long, default_value = "3")]
+        iterations: usize,
+    },
+    /// Run only mathematical property tests
+    Math,
+    /// Run only performance benchmarks
+    Perf {
+        /// Number of iterations for performance tests
+        #[arg(short, long, default_value = "3")]
+        iterations: usize,
+    },
+    /// Run specific benchmark
+    Benchmark {
+        /// Benchmark to run
+        #[arg(value_enum)]
+        benchmark: BenchmarkType,
+        /// Additional parameters for benchmark
+        #[arg(short, long)]
+        param: Option<usize>,
+    },
+    /// Run stress tests
+    Stress {
+        /// Stress test to run
+        #[arg(value_enum)]
+        test: StressTestType,
+        /// Additional parameters for stress test
+        #[arg(short, long)]
+        param: Option<usize>,
+    },
+}
+
+#[derive(clap::ValueEnum, Clone, Debug, PartialEq)]
+pub enum BenchmarkType {
+    /// PackCAS operations
+    PackCas,
+    /// Basic graph operations
+    BasicGraph,
+    /// Path signature computation
+    PathSignatures,
+    /// Adaptive bloom filter
+    AdaptiveBloom,
+    /// Plan selection
+    PlanSelection,
+    /// Capability checks
+    CapabilityChecks,
+}
+
+#[derive(clap::ValueEnum, Clone, Debug)]
+pub enum StressTestType {
+    /// Variable hop traversal (requires --param for hop count)
+    VariableHopTraversal,
+    /// Blob operations (1MB data)
+    BlobOperations,
+    /// Secure queries
+    SecureQueries,
+    /// Massive data ingestion
+    MassiveIngestion,
 }
 
 /// Main validation runner
@@ -180,42 +254,64 @@ impl ValidationRunner {
     }
 
     async fn run_performance_tests(&self) -> PerformanceResults {
+        self.run_performance_tests_filtered(None).await
+    }
+
+    async fn run_performance_tests_filtered(&self, filter: Option<&[BenchmarkType]>) -> PerformanceResults {
         let mut all_benchmarks = Vec::new();
 
         // Phase A benchmarks
-        println!("  📦 Running Phase A (P4 Core) benchmarks...");
-        for i in 0..self.config.performance_iterations {
-            println!("    Iteration {}...", i + 1);
+        if filter.is_none() || filter.unwrap().contains(&BenchmarkType::PackCas) ||
+           filter.unwrap().contains(&BenchmarkType::BasicGraph) {
+            println!("  📦 Running Phase A (P4 Core) benchmarks...");
+            for i in 0..self.config.performance_iterations {
+                println!("    Iteration {}...", i + 1);
 
-            let cas_result = phase_a_benchmarks::benchmark_pack_cas().await;
-            let graph_result = phase_a_benchmarks::benchmark_basic_graph_ops().await;
+                if filter.is_none() || filter.unwrap().contains(&BenchmarkType::PackCas) {
+                    let cas_result = phase_a_benchmarks::benchmark_pack_cas().await;
+                    all_benchmarks.push(cas_result);
+                }
 
-            all_benchmarks.push(cas_result);
-            all_benchmarks.push(graph_result);
+                if filter.is_none() || filter.unwrap().contains(&BenchmarkType::BasicGraph) {
+                    let graph_result = phase_a_benchmarks::benchmark_basic_graph_ops().await;
+                    all_benchmarks.push(graph_result);
+                }
+            }
         }
 
         // Phase B benchmarks
-        println!("  🎯 Running Phase B (P10 Optimization) benchmarks...");
-        for _ in 0..self.config.performance_iterations {
-            let path_sig_result = phase_b_benchmarks::benchmark_path_signatures();
-            all_benchmarks.push(path_sig_result);
+        if filter.is_none() || filter.unwrap().contains(&BenchmarkType::PathSignatures) {
+            println!("  🎯 Running Phase B (P10 Optimization) benchmarks...");
+            for _ in 0..self.config.performance_iterations {
+                let path_sig_result = phase_b_benchmarks::benchmark_path_signatures();
+                all_benchmarks.push(path_sig_result);
+            }
         }
 
         // Phase C benchmarks
-        println!("  🧠 Running Phase C (P10+ Adaptation) benchmarks...");
-        for _ in 0..self.config.performance_iterations {
-            let bloom_result = phase_c_benchmarks::benchmark_adaptive_bloom().await;
-            let plan_result = phase_c_benchmarks::benchmark_plan_selection();
+        if filter.is_none() || filter.unwrap().contains(&BenchmarkType::AdaptiveBloom) ||
+           filter.unwrap().contains(&BenchmarkType::PlanSelection) {
+            println!("  🧠 Running Phase C (P10+ Adaptation) benchmarks...");
+            for _ in 0..self.config.performance_iterations {
+                if filter.is_none() || filter.unwrap().contains(&BenchmarkType::AdaptiveBloom) {
+                    let bloom_result = phase_c_benchmarks::benchmark_adaptive_bloom().await;
+                    all_benchmarks.push(bloom_result);
+                }
 
-            all_benchmarks.push(bloom_result);
-            all_benchmarks.push(plan_result);
+                if filter.is_none() || filter.unwrap().contains(&BenchmarkType::PlanSelection) {
+                    let plan_result = phase_c_benchmarks::benchmark_plan_selection();
+                    all_benchmarks.push(plan_result);
+                }
+            }
         }
 
         // Phase D benchmarks
-        println!("  🔐 Running Phase D (Own+CFA Final) benchmarks...");
-        for _ in 0..self.config.performance_iterations {
-            let cap_result = phase_d_benchmarks::benchmark_capability_checks().await;
-            all_benchmarks.push(cap_result);
+        if filter.is_none() || filter.unwrap().contains(&BenchmarkType::CapabilityChecks) {
+            println!("  🔐 Running Phase D (Own+CFA Final) benchmarks...");
+            for _ in 0..self.config.performance_iterations {
+                let cap_result = phase_d_benchmarks::benchmark_capability_checks().await;
+                all_benchmarks.push(cap_result);
+            }
         }
 
         // Aggregate results and validate KPIs
@@ -228,6 +324,31 @@ impl ValidationRunner {
             benchmarks: all_benchmarks,
             kpi_validations,
             overall_performance_score: overall_score,
+        }
+    }
+
+    /// Run specific benchmark
+    pub async fn run_single_benchmark(&self, benchmark: &BenchmarkType, _param: Option<usize>) -> BenchmarkResult {
+        match benchmark {
+            BenchmarkType::PackCas => phase_a_benchmarks::benchmark_pack_cas().await,
+            BenchmarkType::BasicGraph => phase_a_benchmarks::benchmark_basic_graph_ops().await,
+            BenchmarkType::PathSignatures => phase_b_benchmarks::benchmark_path_signatures(),
+            BenchmarkType::AdaptiveBloom => phase_c_benchmarks::benchmark_adaptive_bloom().await,
+            BenchmarkType::PlanSelection => phase_c_benchmarks::benchmark_plan_selection(),
+            BenchmarkType::CapabilityChecks => phase_d_benchmarks::benchmark_capability_checks().await,
+        }
+    }
+
+    /// Run specific stress test
+    pub async fn run_stress_test(&self, test: &StressTestType, param: Option<usize>) -> BenchmarkResult {
+        match test {
+            StressTestType::VariableHopTraversal => {
+                let hops = param.unwrap_or(3);
+                stress_tests::benchmark_variable_hop_traversal(hops).await
+            },
+            StressTestType::BlobOperations => stress_tests::benchmark_blob_operations().await,
+            StressTestType::SecureQueries => stress_tests::benchmark_secure_queries().await,
+            StressTestType::MassiveIngestion => stress_tests::benchmark_massive_ingestion().await,
         }
     }
 
@@ -438,25 +559,117 @@ fn print_test_section(name: &str, results: &TestResults) {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = ValidationConfig::default();
+    let cli = Cli::parse();
 
-    let runner = ValidationRunner::new(config);
-    let report = runner.run_full_validation().await;
+    match cli.command {
+        Commands::Full { iterations } => {
+            let config = ValidationConfig {
+                performance_iterations: iterations,
+                ..ValidationConfig::default()
+            };
+            let runner = ValidationRunner::new(config);
+            let report = runner.run_full_validation().await;
 
-    print_validation_report(&report);
+            print_validation_report(&report);
 
-    match report.overall_status {
-        ValidationStatus::Passed => {
-            println!("🎉 All validation criteria met! System ready for production.");
-            std::process::exit(0);
+            match report.overall_status {
+                ValidationStatus::Passed => {
+                    println!("🎉 All validation criteria met! System ready for production.");
+                    std::process::exit(0);
+                }
+                ValidationStatus::Warning => {
+                    println!("⚠️  Validation completed with warnings. Review recommendations.");
+                    std::process::exit(1);
+                }
+                ValidationStatus::Failed => {
+                    println!("❌ Validation failed. Address critical issues before proceeding.");
+                    std::process::exit(2);
+                }
+            }
         }
-        ValidationStatus::Warning => {
-            println!("⚠️  Validation completed with warnings. Review recommendations.");
-            std::process::exit(1);
+        Commands::Math => {
+            let config = ValidationConfig {
+                run_mathematical_tests: true,
+                run_performance_tests: false,
+                run_security_tests: false,
+                run_integration_tests: false,
+                ..ValidationConfig::default()
+            };
+            let runner = ValidationRunner::new(config);
+            let mathematical_tests = runner.run_mathematical_tests().await;
+
+            println!("Mathematical Property Tests:");
+            print_test_section("Mathematical Properties", &mathematical_tests);
+
+            if mathematical_tests.passed == mathematical_tests.total_tests {
+                println!("✅ All mathematical tests passed!");
+                std::process::exit(0);
+            } else {
+                println!("❌ Some mathematical tests failed.");
+                std::process::exit(2);
+            }
         }
-        ValidationStatus::Failed => {
-            println!("❌ Validation failed. Address critical issues before proceeding.");
-            std::process::exit(2);
+        Commands::Perf { iterations } => {
+            let config = ValidationConfig {
+                run_mathematical_tests: false,
+                run_performance_tests: true,
+                run_security_tests: false,
+                run_integration_tests: false,
+                performance_iterations: iterations,
+                statistical_confidence: 0.95,
+            };
+            let runner = ValidationRunner::new(config);
+            let performance_tests = runner.run_performance_tests().await;
+
+            println!("Performance Benchmarks:");
+            println!("Overall Performance Score: {:.1}%", performance_tests.overall_performance_score * 100.0);
+
+            println!("\nKPI Validations:");
+            for kpi in &performance_tests.kpi_validations {
+                let status = if kpi.passed { "✅" } else { "❌" };
+                println!("  {} {}: Target {:.2}, Achieved {:.2} ({:+.1}% margin)",
+                        status, kpi.metric, kpi.target, kpi.achieved, kpi.margin);
+            }
+
+            if performance_tests.overall_performance_score >= 0.8 {
+                println!("✅ Performance benchmarks passed!");
+                std::process::exit(0);
+            } else {
+                println!("❌ Performance benchmarks failed.");
+                std::process::exit(2);
+            }
+        }
+        Commands::Benchmark { benchmark, param } => {
+            let config = ValidationConfig::default();
+            let runner = ValidationRunner::new(config);
+            let result = runner.run_single_benchmark(&benchmark, param).await;
+
+            println!("Benchmark Result:");
+            println!("Operation: {}", result.operation);
+            println!("Total Operations: {}", result.total_operations);
+            println!("Total Time: {:.2}s", result.total_time.as_secs_f64());
+            println!("Ops/sec: {:.0}", result.ops_per_sec);
+            println!("Avg Latency: {:.2}ms", result.avg_latency_ms);
+            println!("P95 Latency: {:.2}ms", result.p95_latency_ms);
+            println!("P99 Latency: {:.2}ms", result.p99_latency_ms);
+            println!("Std Dev: {:.2}ms", result.std_dev_ms);
+        }
+        Commands::Stress { test, param } => {
+            let config = ValidationConfig::default();
+            let runner = ValidationRunner::new(config);
+            let result = runner.run_stress_test(&test, param).await;
+
+            println!("Stress Test Result:");
+            println!("Operation: {}", result.operation);
+            println!("Total Operations: {}", result.total_operations);
+            println!("Total Time: {:.2}s", result.total_time.as_secs_f64());
+            println!("Ops/sec: {:.0}", result.ops_per_sec);
+            println!("Avg Latency: {:.2}ms", result.avg_latency_ms);
+            println!("P95 Latency: {:.2}ms", result.p95_latency_ms);
+            println!("P99 Latency: {:.2}ms", result.p99_latency_ms);
+            println!("Std Dev: {:.2}ms", result.std_dev_ms);
         }
     }
+
+    Ok(())
 }

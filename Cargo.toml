@@ -38,7 +38,9 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 num_cpus = "1.16"
 
 # Build info
-vergen = { version = "8.0", features = ["build", "cargo", "git", "rustc"] }
+
+[build-dependencies]
+vergen = { version = "8.0", features = ["build", "cargo", "git", "gix", "rustc"] }
 
 [[bin]]
 name = "enishi"

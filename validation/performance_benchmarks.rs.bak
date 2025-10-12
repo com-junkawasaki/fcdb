@@ -615,9 +615,8 @@ pub mod stress_tests {
         for i in 0..config.num_operations {
             let op_start = Instant::now();
             let cid = mock_cas_put(&blob_data).await;
-            let _retrieved = mock_cas_get(&cid).await;
-            // Note: In a real implementation, we would verify data integrity
-            // For benchmarking purposes, we focus on performance metrics
+            let retrieved = mock_cas_get(&cid).await;
+            assert_eq!(retrieved.len(), blob_data.len());
             latencies.push(op_start.elapsed().as_secs_f64() * 1000.0);
         }
         let total_time = start.elapsed();
@@ -714,7 +713,7 @@ pub mod stress_tests {
 
         // Benchmark massive ingestion
         let start = Instant::now();
-        for i in 0..config.num_operations {
+        for _i in 0..config.num_operations {
             let op_start = Instant::now();
             let node_data = format!("massive_node_{}", i);
             let node_id = mock_create_node(&node_data).await;
