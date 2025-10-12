@@ -66,33 +66,33 @@ impl AdaptiveBloomSystem {
     /// Insert with type and time bucket for sharding
     pub fn insert(&mut self, cid: &Cid, pack_id: u32, type_part: u16, time_bucket: u64) {
         // Global filter
-        self.global.insert(&cid.0);
+        self.global.insert(cid.as_bytes());
 
         // Pack filter
         self.pack_filters
             .entry(pack_id)
             .or_insert_with(|| BloomFilter::with_rate(1e-7, 100_000))
-            .insert(&cid.0);
+            .insert(cid.as_bytes());
 
         // Shard filter - adaptive creation
         let shard_key = (type_part, time_bucket);
         self.shard_filters
             .entry(shard_key)
             .or_insert_with(|| BloomFilter::with_rate(1e-8, 10_000))
-            .insert(&cid.0);
+            .insert(cid.as_bytes());
     }
 
     /// Query with hierarchical filtering
     pub fn contains(&self, cid: &Cid, pack_id: Option<u32>, shard: Option<(u16, u64)>) -> bool {
         // Check global first (fast rejection)
-        if !self.global.contains(&cid.0) {
+        if !self.global.contains(cid.as_bytes()) {
             return false;
         }
 
         // Check pack filter if specified
         if let Some(pack_id) = pack_id {
             if let Some(filter) = self.pack_filters.get(&pack_id) {
-                if !filter.contains(&cid.0) {
+                if !filter.contains(cid.as_bytes()) {
                     return false;
                 }
             }
@@ -101,7 +101,7 @@ impl AdaptiveBloomSystem {
         // Check shard filter if specified
         if let Some((type_part, time_bucket)) = shard {
             if let Some(filter) = self.shard_filters.get(&(type_part, time_bucket)) {
-                if !filter.contains(&cid.0) {
+                if !filter.contains(cid.as_bytes()) {
                     return false;
                 }
             }
@@ -409,7 +409,7 @@ impl SnapshotManager {
     pub fn create_snapshot(&mut self, as_of: u64, data_cid: Cid) {
         // Remove old snapshots if over limit
         while self.snapshots.len() >= self.max_snapshots {
-            if let Some((oldest_ts, _)) = self.snapshots.iter().next().cloned() {
+            if let Some((oldest_ts, _)) = self.snapshots.iter().next().copied() {
                 self.snapshots.remove(&oldest_ts);
                 self.access_counts.remove(&oldest_ts);
             }
