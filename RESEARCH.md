@@ -5,7 +5,7 @@
 
 ⸻
 
-FCDB = The Enishi Architecture: A Functorial–Categorical Database Model Integrating Graph Responsibility and Categorical Authority
+FCDB (Enishi): A Functorial–Categorical Capability-Addressed Database
 
 Jun Kawasaki
 
