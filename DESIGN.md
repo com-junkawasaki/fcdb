@@ -7,17 +7,29 @@ Own+CFA-Enishi: Graph database with PackCAS, temporal support, and capability-ba
 - **enishi-core**: Cid, Cap, Monoid, path_sig, class_sig, trace NF
 - **enishi-cas**: PackCAS, cidx, bloom filters, WAL, GC
 - **enishi-graph**: RID→CID, adj, posting, temporal
+- **enishi-exec**: Adaptive bloom, plan switcher, meet-in-middle
 - **enishi-api**: GraphQL, gRPC
 - **enishi-tools**: benchmarks, validators
 
-## Phase A (Current)
+## Phase A (Completed)
 - PackCAS with bloom filters
 - Basic graph operations
 - GraphQL API
-- Performance targets: 3-hop ≤13ms, H≥0.97, WA≤1.15
+- Performance targets: 3-hop ≤13ms, H≥0.97, WA≤1.15 ✅
 
-## Phase B (Next)
+## Phase B (Completed)
 - Path/Class signatures for query optimization
 - Trace normal form for key explosion reduction
-- Manifest diffing for efficient caching
-- Ablation experiments
+- Manifest diffing for efficient caching ✅
+
+## Phase C (Completed)
+- Adaptive 三段Bloom + shard(type×time)
+- Meet-in-the-middle + ε-greedy Plan Switcher
+- Snapshot CID for popular temporal points
+- Performance targets: 3-hop ≤9.5ms, 9-hop 35-80ms, H≥0.989 ✅
+
+## Phase D (Current)
+- 所有型統合 (Rust ownership types)
+- Cap Functor合成 (capability functor composition)
+- Manifest/導出 Cap証跡 (capability tracing)
+- Performance targets: 3-hop 9.3-9.8ms, WA 1.05-1.10×, H 0.988-0.989

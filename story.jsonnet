@@ -14,13 +14,18 @@ local processNetwork = {
       name: "P10+ Adaptation",
       modules: ["enishi-cas", "enishi-exec", "enishi-core"],
       kpis: { "3-hop": "<=9.5ms", "9-hop": "35-80ms", cache_hit: ">=0.989" }
+    },
+    D: {
+      name: "Own+CFA Final",
+      modules: ["enishi-concur", "enishi-core", "enishi-derive"],
+      kpis: { "3-hop": "9.3-9.8ms", cache_hit: "0.988-0.989", write_amp: "1.05-1.10" }
     }
   },
-  currentPhase: "C",  // Moving to Phase C
-  executionOrder: ["A", "B", "C"]
+  currentPhase: "D",  // Moving to Phase D
+  executionOrder: ["A", "B", "C", "D"]
 };
 
 {
   processNetwork: processNetwork,
-  executionOrder: ["A", "B", "C"]
+  executionOrder: ["A", "B", "C", "D"]
 }

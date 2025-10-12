@@ -1,0 +1,10 @@
+[package]
+name = "enishi-concur"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+enishi-core = { path = "../enishi-core" }
+tokio = { version = "1.0", features = ["sync", "rt"] }
+async-trait = "0.1"
+thiserror = "1.0"

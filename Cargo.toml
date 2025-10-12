@@ -1,5 +1,5 @@
 [workspace]
-members = ["enishi-core", "enishi-exec"]
+members = ["enishi-core", "enishi-exec", "enishi-concur"]
 resolver = "2"
 
 [workspace.package]
