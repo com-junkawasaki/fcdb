@@ -1,0 +1,6 @@
+apiVersion: v2
+name: fcdb
+version: 0.1.0
+description: FCDB (Enishi) Functorial-Categorical Capability-Addressed Database Helm chart
+type: application
+appVersion: "0.1.0"

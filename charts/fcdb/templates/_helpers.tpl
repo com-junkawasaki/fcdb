@@ -1,8 +1,8 @@
-{{- define "enishi.name" -}}
+{{- define "fcdb.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "enishi.fullname" -}}
+{{- define "fcdb.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -11,6 +11,6 @@
 {{- end -}}
 {{- end -}}
 
-{{- define "enishi.chart" -}}
+{{- define "fcdb.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" -}}
 {{- end -}}

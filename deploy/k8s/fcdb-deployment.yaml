@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: enishi
+  name: fcdb
   labels:
-    app: enishi
+    app: fcdb
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: enishi
+      app: fcdb
   template:
     metadata:
       labels:
-        app: enishi
+        app: fcdb
     spec:
       containers:
-        - name: enishi
-          image: ghcr.io/your-org/enishi:0.1.0
+        - name: fcdb
+          image: ghcr.io/your-org/fcdb:0.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -24,7 +24,7 @@ spec:
           env:
             - name: RUST_LOG
               value: "info"
-            - name: ENISHI_STORAGE_PATH
+            - name: FCDB_STORAGE_PATH
               value: "/app/data"
           readinessProbe:
             httpGet:
@@ -48,12 +48,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: enishi
+  name: fcdb
   labels:
-    app: enishi
+    app: fcdb
 spec:
   selector:
-    app: enishi
+    app: fcdb
   ports:
     - name: http
       port: 80
@@ -66,18 +66,18 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: enishi
+  name: fcdb
   annotations:
     kubernetes.io/ingress.class: nginx
 spec:
   rules:
-    - host: enishi.local
+    - host: fcdb.local
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: enishi
+                name: fcdb
                 port:
                   number: 80

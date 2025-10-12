@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "enishi.fullname" . }}
+  name: {{ include "fcdb.fullname" . }}
   annotations:
     kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
 spec:
@@ -16,7 +16,7 @@ spec:
             pathType: {{ .pathType | quote }}
             backend:
               service:
-                name: {{ include "enishi.fullname" $ }}
+                name: {{ include "fcdb.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
         {{- end }}

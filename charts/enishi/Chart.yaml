@@ -1,6 +1,0 @@
-apiVersion: v2
-name: enishi
-version: 0.1.0
-description: Own-CFA-Enishi service Helm chart
-type: application
-appVersion: "0.1.0"

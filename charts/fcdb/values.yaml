@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: ghcr.io/your-org/enishi
+  repository: ghcr.io/your-org/fcdb
   tag: "0.1.0"
   pullPolicy: IfNotPresent
 
@@ -15,7 +15,7 @@ ingress:
   enabled: true
   className: nginx
   hosts:
-    - host: enishi.local
+    - host: fcdb.local
       paths:
         - path: /
           pathType: Prefix
@@ -25,4 +25,4 @@ metrics:
 
 env:
   RUST_LOG: "info"
-  ENISHI_STORAGE_PATH: "/app/data"
+  FCDB_STORAGE_PATH: "/app/data"

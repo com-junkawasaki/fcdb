@@ -26,6 +26,6 @@ Notes:
 - Currently the paper uses an inline bibliography block, so no `.bib` is included.
 - If you add `\bibliography{...}` or `\addbibresource{...}`, the packer will include all `*.bib` files in this directory by default.
 - Graphics are autodetected from `\\includegraphics{...}` and common extensions: `pdf`, `png`, `jpg`, `jpeg`.
-- Avoid EPS on arXiv: convert `.eps` to `.pdf` before submission (e.g., `epstopdf fig.eps`). arXiv often disables shell escape, so automatic conversion will fail.
+- EPS warning (arXiv): Convert `.eps` to `.pdf` yourself before compiling/submitting (e.g., `epstopdf fig.eps`). arXiv compiles with shell escape disabled, so automatic EPS→PDF conversion will not run.
 
 
