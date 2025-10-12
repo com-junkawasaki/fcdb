@@ -50,6 +50,7 @@ pub struct Metrics {
 }
 
 /// Metrics collector
+#[derive(Clone)]
 pub struct MetricsCollector {
     start_time: Instant,
     data: Arc<RwLock<Metrics>>,

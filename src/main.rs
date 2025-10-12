@@ -30,11 +30,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("📋 Configuration loaded: {:?}", config);
 
     // Initialize metrics
-    let metrics = metrics::MetricsCollector::new();
+    let metrics = std::sync::Arc::new(metrics::MetricsCollector::new());
     metrics.start_collection();
 
     // Initialize health checker
-    let health_checker = health::HealthChecker::new();
+    let health_checker = std::sync::Arc::new(health::HealthChecker::new());
 
     // TODO: Initialize system components when ready
     // let cas = enishi_cas::PackCAS::open(&config.storage_path).await?;
@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // let executor = enishi_exec::SafeExecutor::new();
 
     // Start HTTP server
-    let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
+    let addr = SocketAddr::from(([0, 0, 0, 0], config.server.port));
     let server = server::Server::new(config, metrics.clone(), health_checker.clone());
 
     info!("🌐 Starting HTTP server on {}", addr);

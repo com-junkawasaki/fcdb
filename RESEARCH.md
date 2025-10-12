@@ -7,7 +7,7 @@
 
 FCDB = The Enishi Architecture: A Functorial–Categorical Database Model Integrating Graph Responsibility and Categorical Authority
 
-Jun [Author]
+Jun Kawasaki
 
 ⸻
 
@@ -302,7 +302,7 @@ LaTeX（ACM/ arXiv スタイル互換スケルトン）
 
 \title{Enishi: A Functorial--Categorical Database\\
 \large The 9th Lineage beyond B-Tree, LSM, Graph, and Blob}
-\author{Jun}
+\author{Jun Kawasaki}
 \date{}
 
 \begin{document}

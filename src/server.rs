@@ -4,12 +4,11 @@ use axum::{
     extract::State,
     http::StatusCode,
     response::Json,
-    routing::{get, post},
+    routing::get,
     Router,
 };
 use serde_json::json;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 
@@ -21,8 +20,8 @@ use crate::health::HealthChecker;
 #[derive(Clone)]
 pub struct AppState {
     pub config: Config,
-    pub metrics: MetricsCollector,
-    pub health: HealthChecker,
+    pub metrics: Arc<MetricsCollector>,
+    pub health: Arc<HealthChecker>,
     // TODO: Add system components when ready
     // pub graph_db: Arc<RwLock<GraphDB>>,
 }
@@ -35,8 +34,8 @@ pub struct Server {
 impl Server {
     pub fn new(
         config: Config,
-        metrics: MetricsCollector,
-        health: HealthChecker,
+        metrics: Arc<MetricsCollector>,
+        health: Arc<HealthChecker>,
     ) -> Self {
         Self {
             state: AppState {
