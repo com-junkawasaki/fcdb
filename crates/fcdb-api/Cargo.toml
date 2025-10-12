@@ -10,7 +10,7 @@ keywords = ["database", "api", "graphql", "grpc", "rest"]
 categories = ["api-bindings", "web-programming"]
 
 [dependencies]
-fcdb-core = "0.1.0"
+fcdb-core = "0.1.1"
 fcdb-graph = "0.1.0"
 
 # GraphQL

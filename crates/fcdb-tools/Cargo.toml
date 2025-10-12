@@ -10,7 +10,7 @@ keywords = ["database", "tools", "cli", "utilities"]
 categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
-fcdb-core = "0.1.0"
+fcdb-core = "0.1.1"
 fcdb-cas = "0.1.0"
 fcdb-graph = "0.1.0"
 

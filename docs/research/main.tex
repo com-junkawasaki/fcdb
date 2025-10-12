@@ -8,6 +8,10 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning,calc}
 \usepackage{tabularx}
+\usepackage{array}
+% Flexible column types for tabularx: Y = raggedright X, C = centered X
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
 \usepackage{enumitem}
 \usepackage[margin=1in]{geometry}
 \usepackage{microtype}

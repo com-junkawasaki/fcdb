@@ -10,7 +10,7 @@ keywords = ["database", "graph", "traversal", "rdf"]
 categories = ["data-structures", "database-implementations"]
 
 [dependencies]
-fcdb-core = "0.1.0"
+fcdb-core = "0.1.1"
 fcdb-cas = "0.1.0"
 
 # Data structures
