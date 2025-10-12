@@ -294,7 +294,6 @@ impl PackCAS {
         if offset + data.len() as u64 >= PACK_SIZE_TARGET {
             self.close_current_pack().await?;
         }
-        }
 
         Ok(cid)
     }
