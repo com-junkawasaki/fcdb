@@ -11,6 +11,19 @@ use async_trait::async_trait;
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 
+/// Capability-CID pair
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CapCid {
+    pub cap: Cap,
+    pub cid: Cid,
+}
+
+impl CapCid {
+    pub fn new(cid: Cid, cap: Cap) -> Self {
+        Self { cap, cid }
+    }
+}
+
 /// Errors for concurrency operations
 #[derive(Error, Debug)]
 pub enum ConcurError {
@@ -128,33 +141,41 @@ impl<'a, T> BorrowMutCapCid<'a, T> {
 /// Phase D: Capability Functor
 /// F(Cap ▷ X) = Cap ▷ F(X) - functor composition for security
 pub trait CapFunctor {
-    type Target<T>;
+    type Target<U>;
 
     /// Map function while preserving capability
-    fn cap_map<T, U, F>(self, f: F) -> Self::Target<U>
+    fn cap_map<U, F>(self, f: F) -> Self::Target<U>
     where
-        F: FnOnce(T) -> U;
+        F: FnOnce(Self::Data) -> U;
 
     /// FlatMap with capability composition
-    fn cap_flat_map<T, U, F>(self, f: F) -> Self::Target<U>
+    fn cap_flat_map<U, F>(self, f: F) -> Self::Target<U>
     where
-        F: FnOnce(T) -> Self::Target<U>;
+        F: FnOnce(Self::Data) -> Self::Target<U>;
+}
+
+pub trait HasData {
+    type Data;
+}
+
+impl<T> HasData for OwnedCapCid<T> {
+    type Data = T;
 }
 
 impl<T> CapFunctor for OwnedCapCid<T> {
     type Target<U> = OwnedCapCid<U>;
 
-    fn cap_map<S, U, F>(self, f: F) -> Self::Target<U>
+    fn cap_map<U, F>(self, f: F) -> Self::Target<U>
     where
-        F: FnOnce(S) -> U,
+        F: FnOnce(Self::Data) -> U,
     {
         let (cap_cid, data) = self.into_parts();
         OwnedCapCid::new(f(data), cap_cid.cap, cap_cid.cid)
     }
 
-    fn cap_flat_map<S, U, F>(self, f: F) -> Self::Target<U>
+    fn cap_flat_map<U, F>(self, f: F) -> Self::Target<U>
     where
-        F: FnOnce(S) -> Self::Target<U>,
+        F: FnOnce(Self::Data) -> Self::Target<U>,
     {
         let (cap_cid, data) = self.into_parts();
         let OwnedCapCid { cap_cid: new_cap_cid, data: new_data } = f(data);
