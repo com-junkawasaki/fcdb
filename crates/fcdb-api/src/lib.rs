@@ -5,7 +5,7 @@
 //! Merkle DAG: enishi_api -> graphql_schema, grpc_services, http_handlers
 
 use async_graphql::{Context, EmptySubscription, Object, Schema, SimpleObject, ID};
-use enishi_graph::{GraphDB, Rid, LabelId, Timestamp};
+use fcdb_graph::{GraphDB, Rid, LabelId, Timestamp};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
