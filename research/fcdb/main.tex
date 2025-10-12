@@ -1,9 +1,12 @@
 \documentclass[10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usetikzlibrary{positioning}
 \usepackage{tabularx}
 \usepackage{enumitem}
 
@@ -43,14 +46,14 @@ We extend the core taxonomy with a ninth lineage (Table~\ref{tab:spectrum}, \ref
 \toprule
 System & Representative & Structural Axis & Philosophy & Distance to Enishi \\
 \midrule
-B-Tree/B+Tree & InnoDB, LMDB & Arborescent, local update & Stability, determinism & ★★★★☆ \\
-LSM-Tree & RocksDB, TiKV & Log-merge alignment & Probabilistic, temporal & ★★☆☆☆ \\
-Append-only & Kafka, QuestDB & Time-series append & Generative historicism & ★★★★☆ \\
-Columnar & ClickHouse & Projection, analytics & Holistic, global & ★★☆☆☆ \\
-In-memory & Redis & Volatile cache & Ephemeral, real-time & ★★☆☆☆ \\
-Graph-store & Neo4j, ArangoDB & Edge/Node relations & Connectionism & ★★★★★ \\
-Object/Blob & S3, Ceph & Content-address & Unstructured tolerance & ★★★★★ \\
-Hash/Trie & FoundationDB & Key recursion & Index recursion & ★★★★☆ \\
+B-Tree/B+Tree & InnoDB, LMDB & Arborescent, local update & Stability, determinism & 4/5 \\
+LSM-Tree & RocksDB, TiKV & Log-merge alignment & Probabilistic, temporal & 2/5 \\
+Append-only & Kafka, QuestDB & Time-series append & Generative historicism & 4/5 \\
+Columnar & ClickHouse & Projection, analytics & Holistic, global & 2/5 \\
+In-memory & Redis & Volatile cache & Ephemeral, real-time & 2/5 \\
+Graph-store & Neo4j, ArangoDB & Edge/Node relations & Connectionism & 5/5 \\
+Object/Blob & S3, Ceph & Content-address & Unstructured tolerance & 5/5 \\
+Hash/Trie & FoundationDB & Key recursion & Index recursion & 4/5 \\
 \textbf{New Hybrid} & \textbf{Own+CFA--Enishi} & Graph+CAS+Functor & Capability \& recursion & --- \\
 \bottomrule
 \end{tabularx}

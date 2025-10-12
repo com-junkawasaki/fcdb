@@ -25,6 +25,7 @@ This creates a file like `arxiv_fcdb_YYYYMMDD.tar.gz` along with `arxiv_manifest
 Notes:
 - Currently the paper uses an inline bibliography block, so no `.bib` is included.
 - If you add `\bibliography{...}` or `\addbibresource{...}`, the packer will include all `*.bib` files in this directory by default.
-- Graphics are autodetected from `\\includegraphics{...}` and common extensions: `pdf`, `png`, `jpg`, `jpeg`, `eps`.
+- Graphics are autodetected from `\\includegraphics{...}` and common extensions: `pdf`, `png`, `jpg`, `jpeg`.
+- Avoid EPS on arXiv: convert `.eps` to `.pdf` before submission (e.g., `epstopdf fig.eps`). arXiv often disables shell escape, so automatic conversion will fail.
 
 
