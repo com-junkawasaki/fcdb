@@ -348,11 +348,12 @@ mod tests {
     #[tokio::test]
     async fn test_graphql_schema_creation() {
         let temp_dir = tempdir().unwrap();
-        let cas = enishi_cas::PackCAS::open(temp_dir.path()).await.unwrap();
+        let cas = fcdb_cas::PackCAS::open(temp_dir.path()).await.unwrap();
         let graph = GraphDB::new(cas).await;
         let graph = Arc::new(RwLock::new(graph));
 
         let schema = create_schema(graph);
-        assert!(schema.query(&"query { __typename }").await.is_ok());
+        let result = schema.execute("query { __typename }").await;
+        assert!(result.is_ok());
     }
 }

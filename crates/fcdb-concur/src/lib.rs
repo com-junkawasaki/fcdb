@@ -583,7 +583,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_capability_functor() {
-        let data = 42;
+        let data: i32 = 42;
         let cap = Cap::new(0, 100, perms::READ | perms::WRITE);
         let cid = Cid::hash(&data.to_le_bytes());
 

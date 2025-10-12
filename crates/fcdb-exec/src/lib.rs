@@ -470,11 +470,11 @@ mod tests {
     #[test]
     fn test_adaptive_bloom() {
         let mut bloom = AdaptiveBloomSystem::new(AdaptiveBloomConfig::default());
-        let cid = Cid([1u8; 32]);
+        let cid = Cid::hash(b"test data 1");
 
         bloom.insert(&cid, 1, 100, 1234567890);
         assert!(bloom.contains(&cid, Some(1), Some((100, 1234567890))));
-        assert!(!bloom.contains(&Cid([2u8; 32]), None, None));
+        assert!(!bloom.contains(&Cid::hash(b"test data 2"), None, None));
     }
 
     #[test]
@@ -514,7 +514,7 @@ mod tests {
     #[test]
     fn test_snapshot_manager() {
         let mut manager = SnapshotManager::new(10);
-        let cid = Cid([42u8; 32]);
+        let cid = Cid::hash(b"snapshot test data");
 
         manager.create_snapshot(1000, cid);
         assert_eq!(manager.get_snapshot(1000), Some(cid));

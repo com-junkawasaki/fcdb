@@ -128,7 +128,7 @@ impl EnishiSystem {
     }
 
     /// Demonstrate end-to-end Own+CFA workflow
-    async fn demonstrate_workflow(&self) -> Result<(), String> {
+    async fn demonstrate_workflow(&mut self) -> Result<(), String> {
         println!("🚀 Starting Own+CFA-Enishi Complete System Demonstration\n");
 
         // 1. Phase A: Store data securely
@@ -213,7 +213,7 @@ impl EnishiSystem {
 // Simplified component stubs for demonstration
 // (In real implementation, these would import from actual crates)
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 struct Cid([u8; 32]);
 
 impl Cid {

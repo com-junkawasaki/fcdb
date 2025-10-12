@@ -11,7 +11,7 @@ categories = ["asynchronous", "concurrency"]
 
 [dependencies]
 fcdb-core = "0.1.1"
-tokio = { version = "1.0", features = ["sync", "rt"] }
+tokio = { version = "1.0", features = ["sync", "rt", "macros", "rt-multi-thread"] }
 async-trait = "0.1"
 thiserror = "1.0"
 serde = { version = "1.0", features = ["derive"] }

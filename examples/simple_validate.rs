@@ -163,7 +163,7 @@ mod perf_validation {
 
         // パス署名計算のパフォーマンスを測定
         for _ in 0..10000 {
-            let path = &test_paths[rand::random::<usize>() % test_paths.len()];
+            let path = &test_paths[(rand::random::<u32>() as usize) % test_paths.len()];
             let op_start = Instant::now();
             compute_path_sig(path);
             latencies.push(op_start.elapsed().as_nanos() as f64);
@@ -276,9 +276,9 @@ fn main() {
     let failed_tests = results.len() - passed_tests;
 
     // 結果表示
-    println!("\n" + &"=".repeat(60));
+    println!("\n{}", "=".repeat(60));
     println!("🎯 Own-CFA-Enishi 検証レポート");
-    println!("=".repeat(60));
+    println!("{}", "=".repeat(60));
     println!("実行時間: {:.2}秒", total_time.as_secs_f64());
     println!("総テスト数: {}", results.len());
     println!("成功: {} ✅", passed_tests);
@@ -293,7 +293,7 @@ fn main() {
     }
 
     // 最終判定
-    println!("\n" + &"=".repeat(60));
+    println!("\n{}", "=".repeat(60));
     if failed_tests == 0 {
         println!("🎉 検証完了: Own-CFA-Enishiシステムはすべての要件を満たしています！");
         println!("📈 パフォーマンス目標: 達成");
@@ -306,7 +306,7 @@ fn main() {
         println!("   詳細を確認して修正してください。");
         std::process::exit(1);
     }
-    println!("=".repeat(60));
+    println!("{}", "=".repeat(60));
 }
 
 mod rand {

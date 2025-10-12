@@ -85,7 +85,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n🧪 Try these curl commands:");
     println!("  curl -X POST http://localhost:3000/nodes \\");
     println!("       -H 'Content-Type: application/json' \\");
-    println!("       -d '{\"data\":\"Hello FCDB!\"}'");
+    println!("       -d '{{\"data\":\"Hello FCDB!\"}}'");
     println!("\n  curl http://localhost:3000/health");
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;

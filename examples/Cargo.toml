@@ -1,0 +1,62 @@
+[package]
+name = "fcdb-examples"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jun Kawasaki <root@junkawasaki.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/com-junkawasaki/fcdb"
+description = "Examples for FCDB (Functorial–Categorical Database)"
+keywords = ["database", "examples", "tutorial"]
+categories = ["examples"]
+
+[dependencies]
+fcdb-core = { path = "../crates/fcdb-core" }
+fcdb-cas = { path = "../crates/fcdb-cas" }
+fcdb-graph = { path = "../crates/fcdb-graph" }
+fcdb-concur = { path = "../crates/fcdb-concur" }
+fcdb-exec = { path = "../crates/fcdb-exec" }
+fcdb-api = { path = "../crates/fcdb-api" }
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Random utilities
+rand = "0.8"
+
+# JSON
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+
+[[example]]
+name = "basic_usage"
+path = "basic_usage.rs"
+
+[[example]]
+name = "rest_api"
+path = "rest_api.rs"
+
+[[example]]
+name = "graphql_api"
+path = "graphql_api.rs"
+
+[[bin]]
+name = "phase_c_demo"
+path = "phase_c_demo.rs"
+
+[[bin]]
+name = "phase_d_demo"
+path = "phase_d_demo.rs"
+
+[[bin]]
+name = "simple_validate"
+path = "simple_validate.rs"
+
+[[bin]]
+name = "validate_system"
+path = "validate_system.rs"

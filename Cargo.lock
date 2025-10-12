@@ -875,11 +875,13 @@ version = "0.1.0"
 dependencies = [
  "async-graphql",
  "axum",
+ "fcdb-cas 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fcdb-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "fcdb-graph 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "prost 0.12.6",
  "serde",
  "serde_json",
+ "tempfile",
  "tokio",
  "tonic",
  "tower 0.4.13",
@@ -896,6 +898,7 @@ dependencies = [
  "fcdb-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures",
  "memmap2",
+ "tempfile",
  "tokio",
  "tracing",
 ]
@@ -970,6 +973,7 @@ dependencies = [
  "fcdb-cas 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fcdb-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
+ "tempfile",
  "tokio",
  "tracing",
 ]
@@ -1000,6 +1004,7 @@ dependencies = [
  "indicatif",
  "rand",
  "statrs",
+ "tempfile",
  "tokio",
  "tracing",
  "tracing-subscriber",

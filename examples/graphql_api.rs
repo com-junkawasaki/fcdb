@@ -197,30 +197,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🔗 GraphQL playground available at: http://localhost:8000");
     println!("\n📋 Example GraphQL queries:");
     println!("\n# Create a node:");
-    println!("mutation {");
-    println!("  createNode(data: \"Hello GraphQL!\") {");
+    println!("mutation {{");
+    println!("  createNode(data: \"Hello GraphQL!\") {{");
     println!("    id");
     println!("    data");
-    println!("  }");
-    println!("}");
+    println!("  }}");
+    println!("}}");
     println!("\n# Query a node:");
-    println!("query {");
-    println!("  node(id: \"1\") {");
+    println!("query {{");
+    println!("  node(id: \"1\") {{");
     println!("    id");
     println!("    data");
-    println!("  }");
-    println!("}");
+    println!("  }}");
+    println!("}}");
     println!("\n# Traverse graph:");
-    println!("query {");
-    println!("  traverse(fromId: \"1\", hops: 2) {");
+    println!("query {{");
+    println!("  traverse(fromId: \"1\", hops: 2) {{");
     println!("    totalNodes");
     println!("    totalEdges");
-    println!("    nodes {");
+    println!("    nodes {{");
     println!("      id");
     println!("      data");
-    println!("    }");
-    println!("  }");
-    println!("}");
+    println!("    }}");
+    println!("  }}");
+    println!("}}");
 
     // Note: This is a simplified example. In production, you would use
     // a proper GraphQL server like async-graphql-axum

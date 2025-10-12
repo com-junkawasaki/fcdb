@@ -41,3 +41,18 @@ Notes:
 - If you add figures for measurement (heatmaps, ablation, throughput-latency curves), place them in this folder and reference via `\\includegraphics{...}` so `arxiv_pack.sh` auto-detects them.
 
 
+
+---
+
+## arXiv Metadata (copy/paste into submission form)
+
+- **Title**: Functorial-Categorical Database: A Compositional Framework for Information Preservation and Anti-Commutativity Reduction
+- **Authors**: Jun Kawasaki
+- **Abstract**:
+  Conventional database architectures often secure local consistency by discarding information, entangling correctness with loss. We introduce the Functorial-Categorical Database (FCDb), which models data operations as morphisms in a layered functor category and establishes a Complete Preserving Family (CPF) of projections spanning content invariance (CAS), capability, and ownership, with optional observational projections for local order (B+Tree), temporal history (append-only/LSM), and adjacency (Graph). We identify a minimal kernel (F_core = Own o Cap o CAS) that preserves information and collapses non-commutativity to the ethical grant/revoke boundary. Under adjoint lifts and a fibred structure, operational pairs commute in the categorical limit while ownership integrity and capability constraints are maintained. The framework connects to information geometry via projection interpretations and supports empirical validation without discarding semantic, temporal, or relational entropy.
+- **Comments**: LaTeX; inline bibliography; no external graphics required (TikZ templates included); packaging script `arxiv_pack.sh` provided; manifest auto-generated.
+- **Subjects**: cs.DB (Databases); cs.DS (Data Structures and Algorithms); cs.LO (Logic in Computer Science); cs.PL (Programming Languages)
+- **ACM CCS (suggested)**: Information systems → Database theory; Theory of computation → Category theory; Software and its engineering → Functional languages
+- **MSC (optional)**: 18C10 (Category theory in computer science), 68P15 (Database theory)
+- **Keywords**: category theory, information geometry, ownership, capabilities, content addressing, commutativity, adjunctions, fibred categories, morphological databases
+

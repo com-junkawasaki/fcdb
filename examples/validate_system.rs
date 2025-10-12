@@ -148,7 +148,7 @@ mod mathematical_validation {
         execute: bool,
     }
 
-    #[derive(Clone, Debug, PartialEq)]
+    #[derive(Clone, Debug, PartialEq, Hash)]
     enum TestOperation {
         CreateNode(u64),
         CreateEdge(u64, u64),
@@ -239,7 +239,7 @@ mod performance_validation {
 
         // パス署名計算のパフォーマンスを測定
         for _ in 0..10000 {
-            let path = &test_paths[rand::random::<usize>() % test_paths.len()];
+            let path = &test_paths[(rand::random::<u32>() as usize) % test_paths.len()];
             let op_start = Instant::now();
             mock_compute_path_sig(path);
             latencies.push(op_start.elapsed().as_nanos() as f64);
@@ -327,7 +327,7 @@ mod performance_validation {
     async fn mock_bloom_check(_cid: &str, _pack: usize, _shard: usize) -> bool {
         // Bloomフィルタチェックをシミュレート
         tokio::time::sleep(Duration::from_nanos(50)).await;
-        rand::random::<bool>()
+        (rand::random::<u32>() % 2) == 0
     }
 
     fn mock_ownership_transfer() {

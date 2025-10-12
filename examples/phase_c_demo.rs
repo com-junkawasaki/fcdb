@@ -33,7 +33,7 @@ fn main() {
     let mut bloom = AdaptiveBloomSystem::new(config);
 
     // Insert some test data
-    let cids = (0..1000).map(|i| {
+    let cids = (0..1000u32).map(|i| {
         let mut bytes = [0u8; 32];
         bytes[0..4].copy_from_slice(&i.to_le_bytes());
         Cid(bytes)
