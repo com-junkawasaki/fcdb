@@ -53,7 +53,7 @@ We extend the core taxonomy with a ninth lineage (Table~\ref{tab:spectrum}, \ref
 \begin{table}[h]
 \centering
 \small
-\begin{tabularx}{\linewidth}{l l l l l}
+\begin{tabularx}{\linewidth}{l Y Y Y Y}
 \toprule
 System & Representative & Structural Axis & Philosophy & Distance to Enishi \\
 \midrule
@@ -75,7 +75,7 @@ Hash/Trie & FoundationDB & Key recursion & Index recursion & 4/5 \\
 \begin{table}[h]
 \centering
 \small
-\begin{tabularx}{\linewidth}{l c c c c c c}
+\begin{tabularx}{\linewidth}{l C C C C C C}
 \toprule
 Property & B+Tree & LSM & Append & Graph & Blob & \textbf{Enishi} \\
 \midrule
@@ -112,7 +112,7 @@ We preserve the following (\Cref{tab:preserve}) and reduce anti-commutativity po
 \begin{table}[h]
 \centering
 \small
-\begin{tabularx}{\linewidth}{l l l l l}
+\begin{tabularx}{\linewidth}{l Y Y Y Y}
 \toprule
 Projection & Preserved & Lost & Commutativity & Formal $\to$ Invariant $\to$ Test \\
 \midrule
@@ -132,7 +132,7 @@ $\pi_6$ (ownership) & exclusive write & concurrency & \&/\&mut non-comm. & uniqu
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{lcccccc}
+\begin{tabular}{l c c c c c c}
 \toprule
 Layer & $\pi_1$ & $\pi_2$ & $\pi_3$ & $\pi_4$ & $\pi_5$ & $\pi_6$ \\
 \midrule
@@ -191,7 +191,7 @@ Key results with targets and achieved values are summarized in \Cref{tab:perf_re
 \begin{table}[h]
 \centering
 \small
-\begin{tabularx}{\linewidth}{l l l l}
+\begin{tabularx}{\linewidth}{l Y Y Y}
 \toprule
 KPI Metric & Target & Achieved & Margin \\
 \midrule
@@ -234,14 +234,14 @@ CAS idempotence renders $\pi_4$ commutative. Exclusive ownership eliminates inte
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{lcccccc}
+\begin{tabularx}{\linewidth}{l C C C C C C}
 \toprule
 Projection & $\pi_1$ & $\pi_2$ & $\pi_3$ & $\pi_4$ & $\pi_5$ & $\pi_6$ \\
 \midrule
 Anti-commutativity rate (\%) & -- & -- & -- & 0.0 & -- & -- \\
 95\% CI & [--, --] & [--, --] & [--, --] & [0.0, 0.0] & [--, --] & [--, --] \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \caption{Measured anti-commutativity rates by projection (to be populated).}
 \label{tab:anti-measure}
 \end{table}

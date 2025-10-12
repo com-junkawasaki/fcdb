@@ -4,7 +4,7 @@
 //!
 //! Merkle DAG: enishi_exec -> adaptive_bloom, plan_switcher, meet_in_middle
 
-use enishi_core::{Cid, QKey, compute_path_sig, compute_class_sig};
+use fcdb_core::{Cid, QKey, compute_path_sig, compute_class_sig};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, BTreeMap};
 use std::sync::Arc;
@@ -52,7 +52,7 @@ impl AdaptiveBloomSystem {
     pub fn new(config: AdaptiveBloomConfig) -> Self {
         let initial_capacity = 1_000_000;
         Self {
-            global: BloomFilter::with_rate(config.target_fp_rate, initial_capacity),
+            global: BloomFilter::with_rate(config.target_fp_rate as f32, initial_capacity as u32),
             pack_filters: HashMap::new(),
             shard_filters: HashMap::new(),
             global_fps: Vec::new(),
@@ -159,7 +159,7 @@ impl AdaptiveBloomSystem {
         // Estimate optimal sizes based on memory and target FP rates
         // This is a simplified version - real implementation would use more sophisticated sizing
         let global_capacity = (global_mem / 16).min(10_000_000); // Rough estimate
-        self.global = BloomFilter::with_rate(self.config.target_fp_rate, global_capacity);
+        self.global = BloomFilter::with_rate(self.config.target_fp_rate as f32, global_capacity as u32);
 
         // Rebuild pack and shard filters with new sizing
         // (In practice, this would migrate existing data)
@@ -330,8 +330,8 @@ impl MeetInMiddle {
         }
 
         Some(QuerySplit {
-            left_path: query_path[0..best_split].to_vec(),
-            right_path: query_path[best_split..].to_vec(),
+            left_path: query_path[0..best_split].iter().map(|s| s.to_string()).collect(),
+            right_path: query_path[best_split..].iter().map(|s| s.to_string()).collect(),
             join_key: query_path[best_split - 1].to_string(),
             estimated_cost: best_cost,
         })
@@ -437,7 +437,7 @@ impl SnapshotManager {
 
 /// SIMD-accelerated VarInt encoding/decoding
 pub mod simd_varint {
-    use enishi_core::varint;
+    use fcdb_core::varint;
 
     /// SIMD VarInt encoder (placeholder - would use SIMD instructions)
     pub fn encode_simd(values: &[u64]) -> Vec<u8> {

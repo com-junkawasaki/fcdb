@@ -373,24 +373,10 @@ name = "fcdb-concur"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "fcdb-core 0.1.0",
+ "fcdb-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "thiserror 1.0.69",
  "tokio",
-]
-
-[[package]]
-name = "fcdb-core"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39ec8a02235fe2941cf784aacd71b2a7bf3d5776aa5639515b91379ef8d7ef8a"
-dependencies = [
- "blake3",
- "hex",
- "integer-encoding",
- "rand",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -406,11 +392,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "fcdb-core"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4459173cf54bb572e74b4abe7054f311937e58d333ff12d793e3b6a33b6abced"
+dependencies = [
+ "blake3",
+ "hex",
+ "integer-encoding",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "fcdb-exec"
 version = "0.1.0"
 dependencies = [
  "bloom",
- "fcdb-core 0.1.0",
+ "fcdb-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand",
  "serde",
  "statrs",
