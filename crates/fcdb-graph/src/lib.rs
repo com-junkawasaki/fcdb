@@ -4,8 +4,8 @@
 //!
 //! Merkle DAG: enishi_graph -> rid_to_cid, adjacency, postings, temporal
 
-use enishi_core::{Cid, varint, Monoid};
-use enishi_cas::{PackCAS, PackBand};
+use fcdb_core::{Cid, varint, Monoid};
+use fcdb_cas::{PackCAS, PackBand};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet, BTreeMap};
 use std::sync::Arc;

@@ -382,6 +382,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "fcdb-cas"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2bb6b4e41f074a41b8b8e84f244c7ebf6bba5244ef4b0e0a6a92e224ded2abb"
+dependencies = [
+ "bloom",
+ "crc32fast",
+ "fcdb-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures",
+ "memmap2",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "fcdb-concur"
 version = "0.1.0"
 dependencies = [
@@ -427,6 +442,17 @@ dependencies = [
  "rand",
  "serde",
  "statrs",
+]
+
+[[package]]
+name = "fcdb-graph"
+version = "0.1.0"
+dependencies = [
+ "fcdb-cas 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fcdb-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
