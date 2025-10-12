@@ -54,7 +54,7 @@ impl CidxRec {
     /// Create a new cidx record
     pub fn new(cid: Cid, pack_id: u32, offset: u64, len: u32, kind: u8, flags: u8) -> Self {
         let mut crc = Crc32::new();
-        crc.update(&cid.0);
+        crc.update(cid.as_bytes());
         crc.update(&pack_id.to_le_bytes());
         crc.update(&offset.to_le_bytes());
         crc.update(&len.to_le_bytes());
@@ -118,31 +118,31 @@ impl BloomFilters {
 
     pub fn insert(&mut self, cid: &Cid, pack_id: u32, type_part: u16, time_bucket: u64) {
         // Global filter
-        self.global.insert(&cid.0);
+        self.global.insert(cid.as_bytes());
 
         // Pack filter
         self.pack_filters
             .entry(pack_id)
             .or_insert_with(|| BloomFilter::with_rate(1e-7, 100_000))
-            .insert(&cid.0);
+            .insert(cid.as_bytes());
 
         // Shard filter
         self.shard_filters
             .entry((type_part, time_bucket))
             .or_insert_with(|| BloomFilter::with_rate(1e-8, 10_000))
-            .insert(&cid.0);
+            .insert(cid.as_bytes());
     }
 
     pub fn contains(&self, cid: &Cid, pack_id: Option<u32>, shard: Option<(u16, u64)>) -> bool {
         // Check global first
-        if !self.global.contains(&cid.0) {
+        if !self.global.contains(cid.as_bytes()) {
             return false;
         }
 
         // Check pack filter if specified
         if let Some(pack_id) = pack_id {
             if let Some(filter) = self.pack_filters.get(&pack_id) {
-                if !filter.contains(&cid.0) {
+                if !filter.contains(cid.as_bytes()) {
                     return false;
                 }
             }
@@ -151,7 +151,7 @@ impl BloomFilters {
         // Check shard filter if specified
         if let Some((type_part, time_bucket)) = shard {
             if let Some(filter) = self.shard_filters.get(&(type_part, time_bucket)) {
-                if !filter.contains(&cid.0) {
+                if !filter.contains(cid.as_bytes()) {
                     return false;
                 }
             }
@@ -271,24 +271,29 @@ impl PackCAS {
         // Ensure we have a pack writer
         self.ensure_pack_writer(band).await?;
 
-        if let Some(writer) = &mut self.current_pack {
+        let (offset, pack_id) = if let Some(writer) = &mut self.current_pack {
             let offset = writer.current_offset;
+            let pack_id = writer.pack_id;
             writer.file.write_all(data)?;
             writer.current_offset += data.len() as u64;
+            (offset, pack_id)
+        } else {
+            return Err(io::Error::new(io::ErrorKind::Other, "No current pack writer"));
+        };
 
-            // Add to cidx
-            let record = CidxRec::new(cid, writer.pack_id, offset, data.len() as u32, kind, 0);
-            self.append_cidx_record(&record).await?;
+        // Add to cidx
+        let record = CidxRec::new(cid, pack_id, offset, data.len() as u32, kind, 0);
+        self.append_cidx_record(&record).await?;
 
-            // Update bloom filters
-            let type_part = (kind as u16) << 8;
-            let time_bucket = 0; // Would be current time bucket
-            self.bloom_filters.insert(&cid, writer.pack_id, type_part, time_bucket);
+        // Update bloom filters
+        let type_part = (kind as u16) << 8;
+        let time_bucket = 0; // Would be current time bucket
+        self.bloom_filters.insert(&cid, pack_id, type_part, time_bucket);
 
-            // Check if pack is full
-            if writer.current_offset >= PACK_SIZE_TARGET {
-                self.close_current_pack().await?;
-            }
+        // Check if pack is full
+        if offset + data.len() as u64 >= PACK_SIZE_TARGET {
+            self.close_current_pack().await?;
+        }
         }
 
         Ok(cid)
