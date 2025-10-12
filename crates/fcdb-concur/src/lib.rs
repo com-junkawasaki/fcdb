@@ -4,11 +4,12 @@
 //!
 //! Merkle DAG: enishi_concur -> ownership_types, cap_functor, txn_safety
 
-use enishi_core::{Cap, CapCid, Cid};
+use fcdb_core::{Cap, CapCid, Cid};
 use std::sync::Arc;
 use tokio::sync::{RwLock, Mutex};
 use async_trait::async_trait;
 use thiserror::Error;
+use serde::{Serialize, Deserialize};
 
 /// Errors for concurrency operations
 #[derive(Error, Debug)]
@@ -143,7 +144,7 @@ pub trait CapFunctor {
 impl<T> CapFunctor for OwnedCapCid<T> {
     type Target<U> = OwnedCapCid<U>;
 
-    fn cap_map<U, F>(self, f: F) -> Self::Target<U>
+    fn cap_map<T, U, F>(self, f: F) -> Self::Target<U>
     where
         F: FnOnce(T) -> U,
     {
@@ -151,7 +152,7 @@ impl<T> CapFunctor for OwnedCapCid<T> {
         OwnedCapCid::new(f(data), cap_cid.cap, cap_cid.cid)
     }
 
-    fn cap_flat_map<U, F>(self, f: F) -> Self::Target<U>
+    fn cap_flat_map<T, U, F>(self, f: F) -> Self::Target<U>
     where
         F: FnOnce(T) -> Self::Target<U>,
     {
