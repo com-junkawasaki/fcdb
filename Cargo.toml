@@ -6,7 +6,8 @@ members = [
     "crates/fcdb-cas",
     "crates/fcdb-graph",
     "crates/fcdb-api",
-    "crates/fcdb-tools"
+    "crates/fcdb-tools",
+    "validation"
 ]
 resolver = "2"
 

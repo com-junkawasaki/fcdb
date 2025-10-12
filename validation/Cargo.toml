@@ -5,11 +5,29 @@ edition = "2021"
 license = "Apache-2.0"
 
 [dependencies]
+# FCDB crates
+fcdb-core = { path = "../crates/fcdb-core" }
+fcdb-cas = { path = "../crates/fcdb-cas" }
+fcdb-graph = { path = "../crates/fcdb-graph" }
+fcdb-exec = { path = "../crates/fcdb-exec" }
+fcdb-concur = { path = "../crates/fcdb-concur" }
+fcdb-api = { path = "../crates/fcdb-api" }
+fcdb-tools = { path = "../crates/fcdb-tools" }
+
+# Async runtime
 tokio = { version = "1.0", features = ["full"] }
+
+# Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
+# Time handling
 chrono = { version = "0.4", features = ["serde"] }
+
+# Random number generation
 rand = "0.8"
+
+# Statistics
 statrs = "0.16"
 
 # For async traits
