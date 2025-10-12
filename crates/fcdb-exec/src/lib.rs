@@ -409,7 +409,7 @@ impl SnapshotManager {
     pub fn create_snapshot(&mut self, as_of: u64, data_cid: Cid) {
         // Remove old snapshots if over limit
         while self.snapshots.len() >= self.max_snapshots {
-            if let Some((oldest_ts, _)) = self.snapshots.iter().next().map(|(k, _)| *k) {
+            if let Some(oldest_ts) = self.snapshots.iter().next().map(|(k, _)| *k) {
                 self.snapshots.remove(&oldest_ts);
                 self.access_counts.remove(&oldest_ts);
             }
