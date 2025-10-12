@@ -127,6 +127,54 @@ cargo run --package fcdb-validation -- full
 
 See [docs/development/](docs/development/) for detailed development setup and contribution guidelines.
 
-## Validation
+## Documentation
 
-The system has undergone rigorous validation. For more details, see [docs/validation/](docs/validation/).
+FCDB provides comprehensive documentation for all aspects of the system:
+
+### API Documentation
+
+Detailed API references for each crate:
+
+- **[Core API](docs/api/core.md)**: Fundamental data structures, cryptographic primitives, and utilities
+- **[CAS API](docs/api/cas.md)**: Content-Addressable Storage operations, performance tuning, and monitoring
+- **[Graph API](docs/api/graph.md)**: Graph data structures, traversal algorithms, and indexing
+- **[API Interface](docs/api/fcdb-api.md)**: REST and GraphQL interfaces, authentication, and middleware
+
+### Additional Documentation
+
+- **[Architecture](docs/architecture/)**: System architecture, design principles, and mathematical foundations
+- **[Development](docs/development/)**: Development setup, contribution guidelines, and coding standards
+- **[Operations](docs/operations/)**: Deployment, monitoring, and operational procedures
+- **[Research](docs/research/)**: Research papers, theoretical foundations, and evaluation results
+- **[Validation](docs/validation/)**: Validation procedures, benchmarking results, and testing
+
+### Generated Documentation
+
+For complete API documentation with examples and detailed type information:
+
+```bash
+# Generate and open Rustdoc
+cargo doc --open
+
+# Or view online at docs.rs
+# fcdb-core: https://docs.rs/fcdb-core
+# fcdb-cas: https://docs.rs/fcdb-cas
+# fcdb-graph: https://docs.rs/fcdb-graph
+# fcdb-api: https://docs.rs/fcdb-api
+```
+
+## Community & Support
+
+- **GitHub Repository**: [com-junkawasaki/fcdb](https://github.com/com-junkawasaki/fcdb)
+- **Crates.io**: [fcdb](https://crates.io/crates/fcdb-core)
+- **Documentation**: [docs/](docs/)
+- **Issues**: [GitHub Issues](https://github.com/com-junkawasaki/fcdb/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/com-junkawasaki/fcdb/discussions)
+
+## License
+
+Licensed under Apache License 2.0. See [LICENSE](LICENSE) for details.
+
+---
+
+**FCDB (Enishi)**: A Functorial–Categorical Database 🚀

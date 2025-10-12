@@ -41,6 +41,8 @@ Geometrically, FCDb aligns with information geometry: each $\pi_i$ acts as an in
 
 Implications include a principled path to post-relational designs, type-safe information systems, and formalized computational ethics. Limitations concern the cost of maintaining full projections under high concurrency, the need for precise adjunctions to guarantee preservation, and domain-specific edge cases where ethical constraints inherently prevent full commutativity. We outline falsifiable predictions for performance and recoverability, and we sketch an empirical agenda for validating CPF completeness in real systems.
 
+\emph{Minimal kernel.} We identify a minimal kernel $\mathcal{F}_{core} = \mathsf{Own} \circ \mathsf{Cap} \circ \mathsf{CAS}$ that preserves information and collapses non-commutativity to the ethical grant/revoke boundary. Observational projections (BTree/Append/Graph) are introduced for evaluation and implementation convenience but are not theoretically necessary for the core preservation claims.
+
 \textbf{Keywords}: category theory, information geometry, ownership, capabilities, content addressing, commutativity, adjunctions, fibred categories, morphological databases.
 \end{abstract}
 
@@ -97,9 +99,10 @@ Domain & RDB & write-heavy & logs & connectivity & blob/fs & \textbf{graph×blob
 
 \paragraph{Structural Hierarchy.}
 From locality (B-Tree) to probabilistic (LSM), historic (Append), connective (Graph),
-immutable (Blob/CAS), capability (Cheri-like), and ownership (Rust), Enishi is a \emph{projected synthesis}:
+immutable (Blob/CAS), capability (Cheri-like), and ownership (Rust), Enishi is a \emph{projected synthesis} with a kernel vs. extended split:
 \[
-\text{Enishi} = \mathsf{Own} \circ \mathsf{Cap} \circ \mathsf{CAS} \circ \mathsf{Graph}.
+\mathcal{F}_{core} = \mathsf{Own} \circ \mathsf{Cap} \circ \mathsf{CAS}, \qquad
+\mathcal{F}_{ext} = \mathcal{F}_{core} \circ \mathsf{Graph} \circ \mathsf{Append} \circ \mathsf{BTree}.
 \]
 
 \section{Theory: Functorial--Categorical Semantics}
@@ -152,6 +155,14 @@ Anti-comm. & $\times$ & $\times$ & $\times$ & $\circ$ & $\times$ & $\times$ \\
 Idempotence ($f\circ f=f$) via immutable CAS; monoid associativity in PackCAS;
 natural transformation ($F(Cap\triangleright X)=Cap\triangleright F(X)$);
 adjoint pair (borrow $\dashv$ own); cartesian closedness for query algebra.
+
+\subsection{Kernel vs. Extended CPF}
+\textbf{Kernel (minimal) CPF.} We isolate a minimal structure
+\(\mathcal{F}_{core} = \mathsf{Own} \circ \mathsf{Cap} \circ \mathsf{CAS}\) that suffices to preserve information and reduce non-commutativity to the grant/revoke boundary. CAS yields idempotent, content-equal updates; Capability imposes a monotone lattice preventing escalation; Ownership eliminates write races by exclusive mutation.
+
+\textbf{Extended (observational) CPF.} Projections for BTree (local order), Append/LSM (temporal monotonicity), and Graph (adjacency) are incorporated as observational functors to support evaluation (indices, compaction analysis, traversal plans) and instrumentation. These are not required for the core preservation claims but make performance reasoning and experimental falsification explicit.
+
+\textbf{Claim.} All commutation properties used by the query algebra follow from \(\mathcal{F}_{core}\). Residual non-commutativity is confined to grant/revoke and remains even without observational projections.
 
 \subsection{Objects, Morphisms, and Equivalences}
 \textbf{Objects.} In the graph responsibility category $\mathcal{G}$, objects are observable graph states $(V,E,\ell)$ with labeling $\ell$; in the categorical core $\mathcal{C}$, objects are persistent snapshots (content-addressed stores with capability annotations).
