@@ -57,7 +57,7 @@ impl HealthChecker {
         // System health check
         self.register_check(HealthCheck {
             name: "system".to_string(),
-            check_fn: Box::new(|_| async {
+            check_fn: Box::new(|| Box::pin(async {
                 // Basic system health - always healthy for now
                 ComponentHealth {
                     status: HealthLevel::Healthy,
@@ -68,13 +68,13 @@ impl HealthChecker {
                         .as_secs(),
                     response_time_ms: 1,
                 }
-            }),
+            })),
         });
 
         // Memory health check
         self.register_check(HealthCheck {
             name: "memory".to_string(),
-            check_fn: Box::new(|_| async {
+            check_fn: Box::new(|| Box::pin(async {
                 let usage = get_memory_usage_mb();
                 let status = if usage < 8000 { // 8GB limit
                     HealthLevel::Healthy
@@ -93,13 +93,13 @@ impl HealthChecker {
                         .as_secs(),
                     response_time_ms: 1,
                 }
-            }),
+            })),
         });
 
         // Storage health check
         self.register_check(HealthCheck {
             name: "storage".to_string(),
-            check_fn: Box::new(|_| async {
+            check_fn: Box::new(|| Box::pin(async {
                 // Check if storage is accessible
                 let accessible = std::path::Path::new("./data").exists() ||
                                std::fs::create_dir_all("./data").is_ok();
@@ -117,13 +117,13 @@ impl HealthChecker {
                         .as_secs(),
                     response_time_ms: 5,
                 }
-            }),
+            })),
         });
 
         // Connections health check
         self.register_check(HealthCheck {
             name: "connections".to_string(),
-            check_fn: Box::new(|_| async {
+            check_fn: Box::new(|| Box::pin(async {
                 // Placeholder - would check active connections
                 ComponentHealth {
                     status: HealthLevel::Healthy,
@@ -134,7 +134,7 @@ impl HealthChecker {
                         .as_secs(),
                     response_time_ms: 2,
                 }
-            }),
+            })),
         });
     }
 
