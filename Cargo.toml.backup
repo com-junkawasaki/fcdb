@@ -9,6 +9,7 @@ authors = ["Enishi Team"]
 license = "Apache-2.0"
 repository = "https://github.com/com-junkawasaki/fcdb"
 
+# Main application package
 [package]
 name = "fcdb"
 version = "0.1.0"
@@ -39,6 +40,10 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Utilities
 num_cpus = "1.16"
+
+# Build info
+
+build = "scripts/build.rs"
 
 [build-dependencies]
 vergen = { version = "8.0", features = ["build", "cargo", "git", "gix", "rustc"] }

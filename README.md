@@ -31,10 +31,57 @@ The project is composed of several Rust crates:
 - `fcdb-exec`: Query execution engine.
 - `fcdb-tools`: Helper tools and utilities.
 
+## Project Structure
+
+```
+fcdb/
+├── src/                    # Main application source
+├── fcdb-*/                 # Rust crates
+├── examples/               # Demo and example code
+├── docs/                   # Documentation
+│   ├── api/               # API documentation
+│   ├── architecture/      # Architecture docs
+│   ├── development/       # Development guide
+│   ├── operations/        # Operations guide
+│   ├── research/          # Research papers and analysis
+│   └── validation/        # Validation and testing docs
+├── charts/                # Kubernetes Helm charts
+├── deploy/                # Deployment configurations
+├── loadtest/              # Load testing scripts
+├── scripts/               # Build and utility scripts
+├── Cargo.toml             # Workspace configuration
+├── Dockerfile             # Container build
+└── README.md              # This file
+```
+
 ## Getting Started
 
-*(TODO: Add instructions for building and running the project.)*
+### Prerequisites
+
+- Rust 1.70+
+- Docker (for container builds)
+
+### Building
+
+```bash
+# Clone the repository
+git clone https://github.com/com-junkawasaki/fcdb.git
+cd fcdb
+
+# Build all crates
+cargo build --release
+
+# Run the application
+cargo run --bin fcdb
+
+# Run validation suite
+cargo run --package fcdb-validation -- full
+```
+
+### Development
+
+See [docs/development/](docs/development/) for detailed development setup and contribution guidelines.
 
 ## Validation
 
-The system has undergone rigorous validation. For more details, see [VALIDATION.md](./VALIDATION.md).
+The system has undergone rigorous validation. For more details, see [docs/validation/](docs/validation/).
