@@ -10,7 +10,7 @@ keywords = ["database", "concurrency", "async", "tokio"]
 categories = ["asynchronous", "concurrency"]
 
 [dependencies]
-fcdb-core = "0.1.0"
+fcdb-core = "0.1.1"
 tokio = { version = "1.0", features = ["sync", "rt"] }
 async-trait = "0.1"
 thiserror = "1.0"
