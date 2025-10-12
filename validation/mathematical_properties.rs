@@ -150,7 +150,7 @@ impl Capability {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 enum Operation {
     CreateNode(u64),
     CreateEdge(u64, u64),

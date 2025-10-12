@@ -56,7 +56,7 @@ pub struct ValidationRunner {
     config: ValidationConfig,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ValidationConfig {
     pub run_mathematical_tests: bool,
     pub run_performance_tests: bool,
@@ -92,7 +92,7 @@ impl ValidationRunner {
         println!("🚀 Starting Own+CFA-Enishi Validation Suite");
         println!("Timestamp: {}", timestamp);
         println!("Configuration: {:?}", self.config);
-        println!("=" .repeat(60));
+        println!("{}", "=".repeat(60));
 
         // Run mathematical property tests
         let mathematical_tests = if self.config.run_mathematical_tests {
@@ -143,7 +143,7 @@ impl ValidationRunner {
             &integration_tests,
         );
 
-        println!("\n" + &"=".repeat(60));
+        println!("\n{}", "=".repeat(60));
         println!("🎯 Validation Complete!");
         println!("Duration: {:.2}s", duration.as_secs_f64());
         println!("Overall Status: {:?}", overall_status);
@@ -363,9 +363,9 @@ impl PerformanceResults {
 
 /// Pretty-print validation report
 pub fn print_validation_report(report: &ValidationReport) {
-    println!("\n" + &"=".repeat(80));
+    println!("\n{}", "=".repeat(80));
     println!("🎯 OWN+CFA-ENISHI VALIDATION REPORT");
-    println!("=".repeat(80));
+    println!("{}", "=".repeat(80));
     println!("Timestamp: {}", report.timestamp);
     println!("Duration: {:.2}s", report.duration.as_secs_f64());
     println!("Overall Status: {:?}", report.overall_status);
@@ -373,14 +373,14 @@ pub fn print_validation_report(report: &ValidationReport) {
 
     // Test results summary
     println!("📊 TEST RESULTS SUMMARY");
-    println!("-".repeat(40));
+    println!("{}", "-".repeat(40));
     print_test_section("Mathematical Properties", &report.mathematical_tests);
     print_test_section("Security Tests", &report.security_tests);
     print_test_section("Integration Tests", &report.integration_tests);
 
     // Performance results
     println!("\n⚡ PERFORMANCE RESULTS");
-    println!("-".repeat(40));
+    println!("{}", "-".repeat(40));
     println!("Overall Performance Score: {:.1}%", report.performance_tests.overall_performance_score * 100.0);
 
     println!("\nKPI Validations:");
@@ -410,12 +410,12 @@ pub fn print_validation_report(report: &ValidationReport) {
 
     // Recommendations
     println!("\n💡 RECOMMENDATIONS");
-    println!("-".repeat(40));
+    println!("{}", "-".repeat(40));
     for rec in &report.recommendations {
         println!("• {}", rec);
     }
 
-    println!("\n" + &"=".repeat(80));
+    println!("\n{}", "=".repeat(80));
 }
 
 fn print_test_section(name: &str, results: &TestResults) {
