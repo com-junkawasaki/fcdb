@@ -47,7 +47,7 @@ impl fmt::Display for Cid {
 }
 
 /// Capability (Cap) - Cheri-style capability
-#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Cap {
     pub base: u64,
     pub len: u64,
