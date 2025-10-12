@@ -4,8 +4,8 @@
 //!
 //! Merkle DAG: enishi_tools -> benchmarks, validators, profilers
 
-use enishi_graph::GraphDB;
-use enishi_cas::PackCAS;
+use fcdb_graph::GraphDB;
+use fcdb_cas::{PackCAS, PackBand};
 use rand::prelude::*;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -66,7 +66,7 @@ pub async fn benchmark_cas(cas_path: &std::path::Path, config: &BenchmarkConfig)
     info!("Starting CAS warmup with {} operations", config.warmup_ops);
     for i in 0..config.warmup_ops {
         let data = format!("warmup data {}", i).into_bytes();
-        cas.put(&data, 0, enishi_cas::PackBand::Small).await?;
+        cas.put(&data, 0, PackBand::Small).await?;
     }
 
     // Benchmark
@@ -77,7 +77,7 @@ pub async fn benchmark_cas(cas_path: &std::path::Path, config: &BenchmarkConfig)
         let data_size = thread_rng().gen_range(config.data_size_range.0..=config.data_size_range.1);
         let data = (0..data_size).map(|_| thread_rng().gen::<u8>()).collect::<Vec<_>>();
         let op_start = Instant::now();
-        let cid = cas.put(&data, 0, enishi_cas::PackBand::Small).await?;
+        let cid = cas.put(&data, 0, PackBand::Small).await?;
         latencies.push(op_start.elapsed());
 
         // Verify round-trip
@@ -119,7 +119,7 @@ pub async fn benchmark_graph(graph_path: &std::path::Path, config: &BenchmarkCon
 
         // Create edges
         for i in 0..node_ids.len().saturating_sub(1) {
-            graph.create_edge(node_ids[i], node_ids[i + 1], enishi_graph::LabelId(1), b"connected").await?;
+            graph.create_edge(node_ids[i], node_ids[i + 1], fcdb_graph::LabelId(1), b"connected").await?;
         }
     }
 
@@ -183,7 +183,7 @@ pub async fn measure_phase_a_kpis(base_path: &std::path::Path) -> Result<PhaseAK
         // Create a connected graph for traversal testing
         for i in 0..nodes.len() {
             for j in (i + 1)..std::cmp::min(i + 10, nodes.len()) {
-                graph.create_edge(nodes[i], nodes[j], enishi_graph::LabelId(1), b"edge").await?;
+                graph.create_edge(nodes[i], nodes[j], fcdb_graph::LabelId(1), b"edge").await?;
             }
         }
     }
