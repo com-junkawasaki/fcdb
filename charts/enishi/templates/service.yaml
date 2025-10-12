@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "enishi.fullname" . }}
+  labels:
+    app: {{ include "enishi.name" . }}
+    chart: {{ include "enishi.chart" . }}
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    app: {{ include "enishi.name" . }}
+    release: {{ .Release.Name }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: 8080
+    - name: metrics
+      port: {{ .Values.metrics.port }}
+      targetPort: {{ .Values.metrics.port }}
+  type: {{ .Values.service.type }}

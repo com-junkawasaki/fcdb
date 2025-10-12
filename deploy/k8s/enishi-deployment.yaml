@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enishi
+  labels:
+    app: enishi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: enishi
+  template:
+    metadata:
+      labels:
+        app: enishi
+    spec:
+      containers:
+        - name: enishi
+          image: ghcr.io/your-org/enishi:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+            - containerPort: 9090
+          env:
+            - name: RUST_LOG
+              value: "info"
+            - name: ENISHI_STORAGE_PATH
+              value: "/app/data"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: enishi
+  labels:
+    app: enishi
+spec:
+  selector:
+    app: enishi
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: enishi
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: enishi.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: enishi
+                port:
+                  number: 80
