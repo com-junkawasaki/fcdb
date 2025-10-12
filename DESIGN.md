@@ -15,3 +15,9 @@ Own+CFA-Enishi: Graph database with PackCAS, temporal support, and capability-ba
 - Basic graph operations
 - GraphQL API
 - Performance targets: 3-hop ≤13ms, H≥0.97, WA≤1.15
+
+## Phase B (Next)
+- Path/Class signatures for query optimization
+- Trace normal form for key explosion reduction
+- Manifest diffing for efficient caching
+- Ablation experiments
