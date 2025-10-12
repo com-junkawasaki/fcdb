@@ -1,8 +1,8 @@
-# Own-CFA-Enishi Documentation
+# FCDB Documentation
 
 ## Overview
 
-**Own-CFA-Enishi** is a revolutionary categorical database that combines mathematical rigor with exceptional performance and security. Built using Rust's ownership system and capability-based access control, it delivers sub-10ms query performance with provable security guarantees.
+**FCDB (Functorial–Categorical Database)** is a revolutionary categorical database that combines mathematical rigor with exceptional performance and security. Built using Rust's ownership system and capability-based access control, it delivers sub-10ms query performance with provable security guarantees.
 
 ## Key Features
 

@@ -1,25 +1,108 @@
-# Own-CFA-Enishi API Reference
+# FCDB API Reference
 
 ## Overview
 
-Own-CFA-Enishi provides both REST HTTP APIs and GraphQL interfaces for database operations. All APIs are secured with Own+CFA capability-based access control.
+FCDB (Functorial–Categorical Database) provides modular Rust crates for building categorical database systems. The API is designed around composable components that can be used independently or together.
 
-## HTTP REST API
+## Architecture
 
-### Base URL
-```
-http://localhost:8080
+FCDB follows a modular architecture with clear separation of concerns:
+
+- **fcdb-core**: Core data structures and cryptographic primitives
+- **fcdb-cas**: Content-Addressable Storage implementation
+- **fcdb-graph**: Graph data structures and traversal algorithms
+- **fcdb-exec**: Query execution engine with adaptive optimization
+- **fcdb-concur**: Concurrency primitives and capability-based security
+- **fcdb-api**: REST and GraphQL API interfaces
+- **fcdb-tools**: Utilities, benchmarking, and CLI tools
+
+## Core Concepts
+
+### Content-Addressable Storage (CAS)
+
+FCDB uses content-addressable storage where data is identified by its cryptographic hash (CID):
+
+```rust
+use fcdb_core::Cid;
+use fcdb_cas::PackCAS;
+
+// Create CAS instance
+let cas = PackCAS::new("./data").await?;
+
+// Store data
+let cid = cas.put(b"Hello FCDB!".to_vec(), 0).await?;
+println!("Stored with CID: {:?}", cid);
+
+// Retrieve data
+let data = cas.get(&cid).await?;
+assert_eq!(data, b"Hello FCDB!");
 ```
 
-### Authentication
-All API requests require valid capability tokens in the `Authorization` header:
+### Graph Operations
+
+Graph data structures with efficient traversal:
+
+```rust
+use fcdb_graph::GraphDB;
+
+// Create graph instance
+let graph = GraphDB::new(cas).await?;
+
+// Create nodes
+let node1 = graph.create_node(b"User: Alice".to_vec()).await?;
+let node2 = graph.create_node(b"Post: Hello World!".to_vec()).await?;
+
+// Create edges
+graph.create_edge(node1, node2, fcdb_graph::LabelId(1), b"authored").await?;
+
+// Traverse graph
+let result = graph.traverse(node1, None, 2, None).await?;
+println!("Found {} nodes", result.nodes.len());
 ```
-Authorization: Bearer <capability-token>
+
+### Capability-Based Security
+
+Fine-grained access control using capabilities:
+
+```rust
+use fcdb_core::{Cap, Cid};
+use fcdb_concur::ResourceManager;
+
+// Create capability
+let cap = Cap::new(0x1000, 0x1000, 0x07); // read, write, execute
+
+// Create resource manager
+let mut manager = ResourceManager::new();
+
+// Add resource with capability
+manager.add_owned_resource(data, cap);
+```
+
+## API Interfaces
+
+FCDB provides multiple API interfaces depending on your use case.
+
+## REST API
+
+### Server Setup
+
+```rust
+use fcdb_api::rest::RestServer;
+use fcdb_cas::PackCAS;
+use fcdb_graph::GraphDB;
+
+// Initialize components
+let cas = PackCAS::new("./data").await?;
+let graph = GraphDB::new(cas).await?;
+
+// Create and start REST server
+let server = RestServer::new(graph);
+server.start("127.0.0.1:8080").await?;
 ```
 
 ### Endpoints
 
-#### Service Information
+#### Health & Status
 
 ##### `GET /`
 Returns basic service information.
@@ -401,36 +484,32 @@ Timestamps use RFC3339 format:
 ## SDKs and Libraries
 
 ### Official SDKs
-- **Rust**: Full native implementation
-- **TypeScript/JavaScript**: Node.js and browser support
-- **Python**: Async/await support with type hints
-- **Go**: High-performance concurrent operations
+- **Rust**: Full native implementation (current crate)
+- **WebAssembly**: Browser-based operations
+- **CLI Tools**: Command-line utilities
 
-### Example Usage (TypeScript)
-```typescript
-import { EnishiClient } from '@enishi/client';
+### Example Usage (Rust)
+```rust
+use fcdb_api::client::FcdbClient;
 
-const client = new EnishiClient({
-  endpoint: 'http://localhost:8080',
-  capability: process.env.ENISHI_CAPABILITY
-});
+let client = FcdbClient::new("http://localhost:8080").await?;
 
 // Query node
-const node = await client.getNode('123');
+let node = client.get_node("node_123").await?;
 
 // Create node
-const newNode = await client.createNode({
-  name: 'Bob',
-  age: 25
-});
+let new_node = client.create_node(b"Hello FCDB!".to_vec()).await?;
 
 // Graph traversal
-const results = await client.traverse({
-  from: '123',
-  labels: ['follows'],
-  maxDepth: 2
-});
+let results = client.traverse(new_node.id, 2, None).await?;
 ```
+
+## Detailed API Documentation
+
+- **[Core API](core.md)**: Fundamental data structures and primitives
+- **[CAS API](cas.md)**: Content-Addressable Storage operations
+- **[Graph API](graph.md)**: Graph data structures and algorithms
+- **[API Interface](fcdb-api.md)**: REST and GraphQL interfaces
 
 ## Best Practices
 
