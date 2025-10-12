@@ -12,7 +12,7 @@ use thiserror::Error;
 use serde::{Serialize, Deserialize};
 
 /// Capability-CID pair
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct CapCid {
     pub cap: Cap,
     pub cid: Cid,
@@ -142,6 +142,7 @@ impl<'a, T> BorrowMutCapCid<'a, T> {
 /// F(Cap ▷ X) = Cap ▷ F(X) - functor composition for security
 pub trait CapFunctor {
     type Target<U>;
+    type Data;
 
     /// Map function while preserving capability
     fn cap_map<U, F>(self, f: F) -> Self::Target<U>
@@ -154,16 +155,9 @@ pub trait CapFunctor {
         F: FnOnce(Self::Data) -> Self::Target<U>;
 }
 
-pub trait HasData {
-    type Data;
-}
-
-impl<T> HasData for OwnedCapCid<T> {
-    type Data = T;
-}
-
 impl<T> CapFunctor for OwnedCapCid<T> {
     type Target<U> = OwnedCapCid<U>;
+    type Data = T;
 
     fn cap_map<U, F>(self, f: F) -> Self::Target<U>
     where
