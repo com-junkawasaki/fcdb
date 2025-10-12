@@ -14,7 +14,7 @@ resolver = "2"
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
-authors = ["Enishi Team"]
+authors = ["Jun Kawasaki <root@junkawasaki.com>"]
 license = "Apache-2.0"
 repository = "https://github.com/com-junkawasaki/fcdb"
 
@@ -22,7 +22,7 @@ repository = "https://github.com/com-junkawasaki/fcdb"
 name = "fcdb"
 version = "0.1.0"
 edition = "2021"
-authors = ["Enishi Team"]
+authors = ["Jun Kawasaki <root@junkawasaki.com>"]
 license = "Apache-2.0"
 
 [dependencies]

@@ -3,8 +3,11 @@ name = "fcdb-api"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+description = "Public API interfaces (GraphQL, gRPC, REST) for FCDB"
 license.workspace = true
 repository.workspace = true
+keywords = ["database", "api", "graphql", "grpc", "rest"]
+categories = ["api-bindings", "web-programming"]
 
 [dependencies]
 fcdb-core = { path = "../fcdb-core" }

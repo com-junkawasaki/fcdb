@@ -2,7 +2,12 @@
 name = "fcdb-core"
 version = "0.1.0"
 edition = "2021"
+authors = ["Jun Kawasaki <root@junkawasaki.com>"]
+description = "Core data structures and utilities for FCDB (Functorial–Categorical Database)"
 license = "Apache-2.0"
+repository = "https://github.com/com-junkawasaki/fcdb"
+keywords = ["database", "categorical", "functional", "graph", "cas"]
+categories = ["data-structures", "database-implementations"]
 
 [dependencies]
 blake3 = "1.5"

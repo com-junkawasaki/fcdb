@@ -3,8 +3,11 @@ name = "fcdb-graph"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+description = "Graph operations and traversal for FCDB"
 license.workspace = true
 repository.workspace = true
+keywords = ["database", "graph", "traversal", "rdf"]
+categories = ["data-structures", "database-implementations"]
 
 [dependencies]
 fcdb-core = { path = "../fcdb-core" }

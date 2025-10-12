@@ -2,7 +2,12 @@
 name = "fcdb-concur"
 version = "0.1.0"
 edition = "2021"
+authors = ["Jun Kawasaki <root@junkawasaki.com>"]
+description = "Concurrency primitives and async utilities for FCDB"
 license = "Apache-2.0"
+repository = "https://github.com/com-junkawasaki/fcdb"
+keywords = ["database", "concurrency", "async", "tokio"]
+categories = ["asynchronous", "concurrency"]
 
 [dependencies]
 fcdb-core = { path = "../fcdb-core" }

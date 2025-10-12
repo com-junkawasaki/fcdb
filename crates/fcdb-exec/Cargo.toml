@@ -2,7 +2,12 @@
 name = "fcdb-exec"
 version = "0.1.0"
 edition = "2021"
+authors = ["Jun Kawasaki <root@junkawasaki.com>"]
+description = "Query execution engine for FCDB"
 license = "Apache-2.0"
+repository = "https://github.com/com-junkawasaki/fcdb"
+keywords = ["database", "query", "execution", "engine"]
+categories = ["database-implementations"]
 
 [dependencies]
 fcdb-core = { path = "../fcdb-core" }

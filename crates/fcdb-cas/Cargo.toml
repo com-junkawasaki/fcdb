@@ -3,8 +3,11 @@ name = "fcdb-cas"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+description = "Content-Addressable Storage implementation for FCDB"
 license.workspace = true
 repository.workspace = true
+keywords = ["database", "cas", "storage", "content-addressable"]
+categories = ["filesystem", "database-implementations"]
 
 [dependencies]
 fcdb-core = { path = "../fcdb-core" }

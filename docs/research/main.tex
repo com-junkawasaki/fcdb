@@ -9,6 +9,12 @@
 \usetikzlibrary{positioning,calc}
 \usepackage{tabularx}
 \usepackage{enumitem}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{mathtools}
+\usepackage[nameinlink,capitalise]{cleveref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
 
 \title{FCDB (Enishi): A Functorial–Categorical Capability-Addressed Database\\
 \large The 9th Lineage beyond B-Tree, LSM, Graph, and Blob}
@@ -22,11 +28,12 @@
 We formalize \textbf{Enishi}, a \emph{Functorial--Categorical Database} that separates
 \emph{graph responsibility} (observation) from \emph{categorical authority} (persistence),
 and composes Ownership, Capability, CAS, and Graph as a double categorical system.
-Enishi constitutes a ``9th lineage'' that does not fit any core DB layer: it
-functorially integrates Hash/Trie, Append-only, Graph, and Blob, achieving content immutability,
+Enishi constitutes a ``9th lineage'' that does not fit existing core DB layers: it
+functorially integrates Hash/Trie, Append-only, Graph, and Blob, aiming for content immutability,
 capability safety, schema-less graph traversal, and temporal coherence.
-We prove preservation laws across information projections, show anti-commutativity is reduced
-from $4/6$ to $1/6$, and compare against Unison, Datomic/XTDB, and Maude.
+We formalize preservation laws across information projections, provide an experimental design,
+and empirically indicate a reduction in anti-commutativity from $4/6$ to $1/6$ under stated
+assumptions. We position Enishi relative to Unison, Datomic/XTDB, and Maude.
 \end{abstract}
 
 \section{Introduction}
@@ -96,7 +103,7 @@ $(\mathcal{O}\mathcal{P}\mathcal{C}) \dashv \mathcal{G}$.
 
 \subsection{Information Projections and Preservation}
 Let $\pi_1.. \pi_6$ denote projections from \emph{B+Tree, LSM/Append, Graph, CAS, Capability, Ownership}.
-We preserve the following (Table~\ref{tab:preserve}) and reduce anti-commutativity points (Table~\ref{tab:anti}).
+We preserve the following (\Cref{tab:preserve}) and reduce anti-commutativity points (\Cref{tab:anti}).
 
 \begin{table}[h]
 \centering
@@ -168,7 +175,8 @@ Ownership provides $O(1)$ updates; capability is composed functorially to keep c
 The Enishi validation suite was executed on a standard single-node NVMe setup, covering mathematical, performance, security, and integration tests. The system passed all validation criteria, demonstrating both theoretical correctness and high performance.
 
 \subsection{Performance Results}
-Performance benchmarks confirm that Enishi meets or significantly exceeds its KPI targets. The overall performance score was 100\%. Key results are summarized in Table~\ref{tab:perf_results}.
+Performance benchmarks indicate that Enishi meets or exceeds the stated KPI targets under the experimental setup.
+Key results with targets and achieved values are summarized in \Cref{tab:perf_results}. We report means with target margins; detailed confidence intervals and repetitions are documented in the artifact appendix.
 
 \begin{table}[h]
 \centering
@@ -187,7 +195,7 @@ Security Overhead & $\leq 10\%$ & $2.47\%$ & -7.5\% \\
 \label{tab:perf_results}
 \end{table}
 
-The benchmarks show extremely low latency for core operations, with PackCAS (put/get) and 3-hop traversals averaging 3.40ms, and capability checks adding only a minor overhead (1.36ms). All operations met their performance targets with a significant margin, confirming the efficiency of the Own+CFA model. The recommendation from the validation suite was "System ready for production deployment."
+The benchmarks show low latency for core operations, with PackCAS (put/get) and 3-hop traversals averaging 3.40ms, and capability checks adding minor overhead (\~1.36ms). All reported operations met their targets with comfortable margins in our setup. We refrain from system-wide claims beyond the tested scope and refer to artifact-based reproduction for external verification.
 
 \subsection{Experimental Setup and Reproducibility}
 \textbf{Environment.} CPU: \texttt{<model, cores, freq>}, Memory: \texttt{<size>}, SSD: \texttt{NVMe <model>}, OS/Kernel: \texttt{<version>}, FS: \texttt{<ext4/xfs>}, Governor: \texttt{performance}. BIOS/firmware mitigations listed in supplement.
@@ -199,6 +207,12 @@ The benchmarks show extremely low latency for core operations, with PackCAS (put
 \textbf{Artifacts.} Commit hash, config files, and scripts are archived. See Appendix~\ref{app:repro}.
 
 \subsection{Anti-commutativity Measurement: Design and Results}
+\begin{theorem}[Anti-commutativity reduction under Own+CFA]
+Assume: (i) exclusive ownership for writes; (ii) capability lattice with monotone downgrade; (iii) immutable CAS with idempotent put/get; (iv) bounded-degree traversal with cache hit probability $H_{cache}$ and compaction maintaining fragment bound $k$. Then the set of non-commutative projection pairs across $\{\pi_1..\pi_6\}$ reduces from four layers to one residual boundary at $\pi_5$ (grant/revoke), i.e., $|\{\pi_i:\text{non-comm.}\}|=1$.
+\end{theorem}
+\begin{proof}[Proof sketch]
+CAS idempotence renders $\pi_4$ commutative. Exclusive ownership eliminates interleaving races in updates, collapsing write-order sensitivity in $\pi_1$ given stable page sequences. With append-only snapshots and bounded fragment count, history merges in $\pi_2$ become observationally equivalent under the snapshot equivalence used by the query algebra. Traversal/update interference in $\pi_3$ is mitigated by separating query responsibility from categorical authority; remaining non-commutativity is localized to capability revocation order in $\pi_5$.
+\end{proof}
 \textbf{Event model.} We classify events by projection: insert/delete ($\pi_1$), merge/compact ($\pi_2$), traverse/update ($\pi_3$), put/get ($\pi_4$), grant/revoke ($\pi_5$), own/borrow ($\pi_6$). A pair $(e_i,e_j)$ is anti-commutative if $e_i\circ e_j\ne e_j\circ e_i$ and state diverges beyond an equivalence $\sim$.
 
 \textbf{Metric.} Frequency of anti-commutative pairs per projection over a fixed horizon; report proportion with 95\% CI. Reduction is quantified as baseline 4/6 non-commutative projections to 1/6 after Enishi, with the residual at $\pi_5$ (revocation boundary).
@@ -240,7 +254,6 @@ Provide kill-criteria for each optimization (gain $<\!5\%$ or tail degradation $
 Enishi constitutes a \emph{Functorial--Categorical DB}: the ninth lineage combining Graph, CAS, Capability, and Ownership.
 It preserves information via natural transformations and approaches commutative limits while retaining safety.
 
-\bibliographystyle{plain}
 \begin{thebibliography}{9}
 \bibitem{Spivak2012} Spivak, D. \emph{Functorial Data Migration}, Information \& Computation (2012).
 \bibitem{Datomic} Hickey, R. \emph{Datomic: The Database as a Value} (2012).

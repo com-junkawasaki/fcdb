@@ -3,8 +3,11 @@ name = "fcdb-tools"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+description = "Helper tools, utilities, and CLI for FCDB"
 license.workspace = true
 repository.workspace = true
+keywords = ["database", "tools", "cli", "utilities"]
+categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
 fcdb-core = { path = "../fcdb-core" }
