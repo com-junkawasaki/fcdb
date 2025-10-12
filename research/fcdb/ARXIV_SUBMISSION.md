@@ -28,4 +28,16 @@ Notes:
 - Graphics are autodetected from `\\includegraphics{...}` and common extensions: `pdf`, `png`, `jpg`, `jpeg`.
 - EPS warning (arXiv): Convert `.eps` to `.pdf` yourself before compiling/submitting (e.g., `epstopdf fig.eps`). arXiv compiles with shell escape disabled, so automatic EPS→PDF conversion will not run.
 
+#### Checklist updates (paper sections to verify)
+- Ensure `main.tex` contains:
+  - Experimental Setup and Reproducibility
+  - Anti-commutativity Measurement: Design and Results (with placeholders)
+  - Complexity Assumptions and $O(1{+}\varepsilon)$ Read Bound
+  - Security Model and Revocation Boundary
+  - Preservation table extended with Formal $\to$ Invariant $\to$ Test mapping
+- Appendices include Reproducibility Artifacts with script references to `validation/` and `loadtest/k6_3hop.js`.
+
+#### Packaging notes
+- If you add figures for measurement (heatmaps, ablation, throughput-latency curves), place them in this folder and reference via `\\includegraphics{...}` so `arxiv_pack.sh` auto-detects them.
+
 

@@ -1,5 +1,5 @@
 [package]
-name = "enishi-graph"
+name = "fcdb-graph"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -7,8 +7,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-enishi-core = { path = "../enishi-core" }
-enishi-cas = { path = "../enishi-cas" }
+fcdb-core = { path = "../fcdb-core" }
+fcdb-cas = { path = "../fcdb-cas" }
 
 # Data structures
 serde = { version = "1.0", features = ["derive"] }

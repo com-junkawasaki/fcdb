@@ -1,4 +1,4 @@
-# Own-CFA-Enishi Dockerfile
+# FCDB (Enishi) Dockerfile
 # Multi-stage build for optimal image size and security
 
 # Build stage
@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app user for security
-ENV USER=enishi
+ENV USER=fcdb
 ENV UID=10001
 
 RUN adduser \
@@ -23,7 +23,7 @@ RUN adduser \
     --uid "${UID}" \
     "${USER}"
 
-WORKDIR /enishi
+WORKDIR /fcdb
 
 # Copy dependency manifests
 COPY Cargo.toml Cargo.lock ./
@@ -36,13 +36,13 @@ RUN cargo build --release && rm -rf src/
 
 # Copy source code
 COPY src/ src/
-COPY enishi-core/ enishi-core/
-COPY enishi-cas/ enishi-cas/
-COPY enishi-graph/ enishi-graph/
-COPY enishi-exec/ enishi-exec/
-COPY enishi-concur/ enishi-concur/
-COPY enishi-api/ enishi-api/
-COPY enishi-tools/ enishi-tools/
+COPY fcdb-core/ fcdb-core/
+COPY fcdb-cas/ fcdb-cas/
+COPY fcdb-graph/ fcdb-graph/
+COPY fcdb-exec/ fcdb-exec/
+COPY fcdb-concur/ fcdb-concur/
+COPY fcdb-api/ fcdb-api/
+COPY fcdb-tools/ fcdb-tools/
 
 # Build the application
 RUN cargo build --release
@@ -61,10 +61,10 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 
 # Copy binary from builder
-COPY --from=builder /enishi/target/release/enishi /usr/local/bin/enishi
+COPY --from=builder /fcdb/target/release/fcdb /usr/local/bin/fcdb
 
 # Use non-root user
-USER enishi:enishi
+USER fcdb:fcdb
 
 # Expose ports (adjust based on your API configuration)
 EXPOSE 8080 9090
@@ -74,4 +74,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
 # Default command
-CMD ["enishi", "--config", "/etc/enishi/config.toml"]
+CMD ["fcdb", "--config", "/etc/fcdb/config.toml"]

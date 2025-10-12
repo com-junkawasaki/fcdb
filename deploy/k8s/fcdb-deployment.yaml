@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: fcdb
-          image: ghcr.io/your-org/fcdb:0.1.0
+          image: ghcr.io/com-junkawasaki/fcdb:0.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

@@ -1,5 +1,5 @@
 [package]
-name = "enishi-cas"
+name = "fcdb-cas"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -7,7 +7,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-enishi-core = { path = "../enishi-core" }
+fcdb-core = { path = "../fcdb-core" }
 
 # File I/O and async
 tokio = { version = "1.0", features = ["fs", "io-util"] }

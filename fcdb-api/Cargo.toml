@@ -1,5 +1,5 @@
 [package]
-name = "enishi-api"
+name = "fcdb-api"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -7,8 +7,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-enishi-core = { path = "../enishi-core" }
-enishi-graph = { path = "../enishi-graph" }
+fcdb-core = { path = "../fcdb-core" }
+fcdb-graph = { path = "../fcdb-graph" }
 
 # GraphQL
 async-graphql = { version = "7.0", features = ["chrono"] }

@@ -1,10 +1,11 @@
 [package]
-name = "enishi-concur"
+name = "fcdb-concur"
 version = "0.1.0"
 edition = "2021"
+license = "Apache-2.0"
 
 [dependencies]
-enishi-core = { path = "../enishi-core" }
+fcdb-core = { path = "../fcdb-core" }
 tokio = { version = "1.0", features = ["sync", "rt"] }
 async-trait = "0.1"
 thiserror = "1.0"

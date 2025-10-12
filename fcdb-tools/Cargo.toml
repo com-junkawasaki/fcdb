@@ -1,5 +1,5 @@
 [package]
-name = "enishi-tools"
+name = "fcdb-tools"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -7,9 +7,9 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-enishi-core = { path = "../enishi-core" }
-enishi-cas = { path = "../enishi-cas" }
-enishi-graph = { path = "../enishi-graph" }
+fcdb-core = { path = "../fcdb-core" }
+fcdb-cas = { path = "../fcdb-cas" }
+fcdb-graph = { path = "../fcdb-graph" }
 
 # Benchmarking
 criterion = { version = "0.5", features = ["html_reports"] }
