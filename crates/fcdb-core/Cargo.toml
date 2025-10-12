@@ -1,6 +1,6 @@
 [package]
 name = "fcdb-core"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Jun Kawasaki <root@junkawasaki.com>"]
 description = "Core data structures and utilities for FCDB (Functorial–Categorical Database)"

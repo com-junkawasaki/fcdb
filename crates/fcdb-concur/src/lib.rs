@@ -512,10 +512,11 @@ impl SafeExecutor {
 
         let cap_cid = {
             let resources = self.resource_manager.resources.read().await;
-            resources.get(resource)
+            let temp = resources.get(resource)
                 .ok_or(ConcurError::OwnershipViolation)?
                 .read().await
-                .clone()
+                .clone();
+            temp
         };
 
         // Execute operation
