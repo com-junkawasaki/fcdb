@@ -926,7 +926,9 @@ dependencies = [
  "rand",
  "serde",
  "serde_json",
+ "tempfile",
  "tokio",
+ "tokio-test",
  "toml",
  "tower 0.4.13",
  "tower-http",
@@ -1035,6 +1037,7 @@ dependencies = [
  "pest_derive",
  "serde",
  "serde_json",
+ "tempfile",
  "thiserror 1.0.69",
  "tokio",
 ]
@@ -1082,6 +1085,7 @@ dependencies = [
  "fcdb-graph 0.1.0",
  "serde",
  "serde_json",
+ "tempfile",
  "thiserror 1.0.69",
  "tokio",
 ]
@@ -1094,6 +1098,7 @@ dependencies = [
  "fcdb-rdf",
  "serde",
  "serde_json",
+ "tempfile",
  "thiserror 1.0.69",
  "tokio",
 ]
@@ -1102,11 +1107,15 @@ dependencies = [
 name = "fcdb-rdf"
 version = "0.1.0"
 dependencies = [
+ "fcdb-cas 0.1.0",
+ "fcdb-core 0.1.1",
  "fcdb-graph 0.1.0",
  "oxigraph",
  "serde",
  "serde_json",
+ "tempfile",
  "thiserror 1.0.69",
+ "tokio",
 ]
 
 [[package]]
@@ -1119,7 +1128,9 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "tempfile",
  "thiserror 1.0.69",
+ "tokio",
 ]
 
 [[package]]
@@ -3759,6 +3770,19 @@ dependencies = [
  "futures-core",
  "pin-project-lite",
  "tokio",
+]
+
+[[package]]
+name = "tokio-test"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2468baabc3311435b55dd935f702f42cd1b8abb7e754fb7dfb16bd36aa88f9f7"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "futures-core",
+ "tokio",
+ "tokio-stream",
 ]
 
 [[package]]

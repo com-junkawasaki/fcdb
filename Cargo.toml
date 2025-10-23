@@ -69,3 +69,16 @@ vergen = { version = "8.0", features = ["build", "cargo", "git", "gix", "rustc"]
 [[bin]]
 name = "fcdb"
 path = "src/main.rs"
+
+[dev-dependencies]
+# Test utilities
+tempfile = "3.0"
+tokio-test = "0.4"
+
+# For test coverage (optional, install cargo-tarpaulin separately)
+# cargo-tarpaulin = "0.27"
+
+[workspace.dependencies]
+# Common test dependencies for all crates
+tempfile = "3.0"
+tokio-test = "0.4"

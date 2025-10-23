@@ -38,12 +38,24 @@ impl std::fmt::Display for Rid {
     }
 }
 
+impl From<u64> for Rid {
+    fn from(id: u64) -> Self {
+        Self(id)
+    }
+}
+
 /// Edge label/type identifier
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct LabelId(pub u32);
 
 impl LabelId {
     pub fn new(id: u32) -> Self {
+        Self(id)
+    }
+}
+
+impl From<u32> for LabelId {
+    fn from(id: u32) -> Self {
         Self(id)
     }
 }

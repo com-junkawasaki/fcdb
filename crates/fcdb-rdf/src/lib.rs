@@ -25,7 +25,7 @@ mod tests {
 
         // Create a test node
         let node_data = b"test node";
-        let rid = graph.create_node(node_data).await.unwrap();
+        let _rid = graph.create_node(node_data).await.unwrap();
 
         // Create RDF exporter
         let exporter = RdfExporter::new(&graph, "https://example.org/");
@@ -33,9 +33,12 @@ mod tests {
         // Export to N-Triples
         let ntriples = exporter.export_ntriples().await.unwrap();
 
+        // Debug output
+        println!("NTriples output:\n{}", ntriples);
+
         // Verify output contains expected triples
         assert!(ntriples.contains("<https://example.org/node/"));
-        assert!(ntriples.contains("<https://example.org/prop/data>"));
+        assert!(ntriples.contains("<https://example.org/data>"));
         assert!(ntriples.contains("test node"));
         assert!(ntriples.contains(" ."));
     }

@@ -48,9 +48,9 @@ impl<'a> RdfExporter<'a> {
             }
 
             // edges
-            let edges: Vec<AdjEntry> = self.graph.get_edges_from(rid).await;
+            let edges = self.graph.get_edges_from(rid).await;
             for e in edges {
-                let pred = format!("{}label/{}", self.base_iri, e.label.0);
+                let pred = format!("{}rel/{}", self.base_iri, e.label.0);
                 let obj = self.iri_for_rid(e.target);
                 out.push_str(&format!("<{}> <{}> <{}> .\n", subj, pred, obj));
             }
@@ -60,7 +60,7 @@ impl<'a> RdfExporter<'a> {
     }
 
     fn iri_for_rid(&self, rid: Rid) -> String {
-        format!("{}rid/{}", self.base_iri, rid.0)
+        format!("{}node/{}", self.base_iri, rid.0)
     }
 }
 
