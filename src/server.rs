@@ -19,6 +19,7 @@ use crate::health::HealthChecker;
 use fcdb_graph::GraphDB;
 use fcdb_rdf::{RdfExporter, SparqlRunner};
 use fcdb_shacl::{validate_shapes, ValidationConfig};
+use fcdb_cypher::execute_cypher;
 
 /// Shared application state
 #[derive(Clone)]
@@ -75,6 +76,7 @@ impl Server {
             .route("/rdf/export", get(rdf_export))
             .route("/sparql", post(sparql_query))
             .route("/shacl/validate", post(shacl_validate))
+            .route("/cypher", post(cypher_query))
             .layer(TraceLayer::new_for_http())
             .layer(CorsLayer::new().allow_origin(Any))
             .with_state(self.state)
@@ -276,6 +278,37 @@ async fn shacl_validate(
             "shapeId": r.shape_id
         })).collect::<Vec<_>>(),
         "shapes": report.shapes
+    });
+
+    Ok(Json(response))
+}
+
+/// Cypher query endpoint
+async fn cypher_query(
+    State(state): State<AppState>,
+    axum::extract::Json(body): axum::extract::Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let query = body.get("query").and_then(|v| v.as_str()).unwrap_or("");
+    if query.is_empty() { return Err(StatusCode::BAD_REQUEST); }
+
+    let graph = state.graph_db.read().await;
+    let result = execute_cypher(query, &*graph).await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Convert to JSON response
+    let response = serde_json::json!({
+        "columns": result.columns,
+        "rows": result.rows,
+        "stats": {
+            "nodesCreated": result.stats.nodes_created,
+            "nodesDeleted": result.stats.nodes_deleted,
+            "relationshipsCreated": result.stats.relationships_created,
+            "relationshipsDeleted": result.stats.relationships_deleted,
+            "labelsAdded": result.stats.labels_added,
+            "labelsRemoved": result.stats.labels_removed,
+            "propertiesSet": result.stats.properties_set,
+            "executionTimeMs": result.stats.execution_time_ms
+        }
     });
 
     Ok(Json(response))

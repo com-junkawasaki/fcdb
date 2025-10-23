@@ -1,0 +1,164 @@
+// Cypher grammar for FCDB (subset)
+// Based on Cypher query language specification
+
+WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
+
+// Keywords
+MATCH = { "MATCH" }
+WHERE = { "WHERE" }
+RETURN = { "RETURN" }
+DISTINCT = { "DISTINCT" }
+LIMIT = { "LIMIT" }
+SKIP = { "SKIP" }
+AS = { "AS" }
+
+// Operators
+EQUALS = { "=" }
+NOT_EQUALS = { "<>" }
+LESS_THAN = { "<" }
+GREATER_THAN = { ">" }
+LESS_EQUALS = { "<=" }
+GREATER_EQUALS = { ">=" }
+IN = { "IN" }
+
+// Literals
+string = @{ "\"" ~ (!"\"" ~ ("\\\"" | ANY))* ~ "\"" | "'" ~ (!"'" ~ ("\\'" | ANY))* ~ "'" }
+integer = @{ ASCII_DIGIT+ }
+float = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
+boolean = { "true" | "false" }
+null = { "null" }
+
+literal = { string | float | integer | boolean | null }
+
+// Identifiers
+variable = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+label = @{ ":" ~ variable }
+property_key = @{ variable }
+
+// Patterns
+node_pattern = {
+    "(" ~
+    (variable ~ ":")? ~
+    variable ~
+    ("{" ~ property_map ~ "}")? ~
+    ")"
+}
+
+relationship_pattern = {
+    ("<" ~ "-")? ~
+    "[" ~
+    (variable ~ ":")? ~
+    (variable ~ "*")? ~
+    (path_length)? ~
+    ("{" ~ property_map ~ "}")? ~
+    "]" ~
+    ("-" ~ ">")?
+}
+
+path_length = {
+    "*" ~ (integer ~ ".." ~ (integer)?)?
+}
+
+property_map = {
+    property_pair ~ ("," ~ property_pair)* ~ (",")?
+}
+
+property_pair = {
+    property_key ~ ":" ~ expression
+}
+
+pattern = {
+    pattern_element ~ ("," ~ pattern_element)*
+}
+
+pattern_element = {
+    node_pattern | relationship_pattern
+}
+
+// Expressions
+expression = {
+    or_expression
+}
+
+or_expression = {
+    and_expression ~ ("OR" ~ and_expression)*
+}
+
+and_expression = {
+    comparison_expression ~ ("AND" ~ comparison_expression)*
+}
+
+comparison_expression = {
+    additive_expression ~
+    (
+        (EQUALS | NOT_EQUALS | LESS_THAN | GREATER_THAN | LESS_EQUALS | GREATER_EQUALS) ~
+        additive_expression
+    )*
+}
+
+additive_expression = {
+    multiplicative_expression ~
+    (("+" | "-") ~ multiplicative_expression)*
+}
+
+multiplicative_expression = {
+    unary_expression ~
+    (("*" | "/") ~ unary_expression)*
+}
+
+unary_expression = {
+    ("NOT" | "-")? ~ atom
+}
+
+atom = {
+    literal |
+    variable |
+    property_access |
+    "(" ~ expression ~ ")" |
+    function_call |
+    list_comprehension
+}
+
+property_access = {
+    variable ~ "." ~ property_key
+}
+
+function_call = {
+    function_name ~ "(" ~ (expression ~ ("," ~ expression)*)? ~ ")"
+}
+
+function_name = {
+    variable
+}
+
+list_comprehension = {
+    "[" ~ expression ~ IN ~ expression ~ (WHERE ~ expression)? ~ "]"
+}
+
+// Clauses
+match_clause = {
+    MATCH ~ pattern
+}
+
+where_clause = {
+    WHERE ~ expression
+}
+
+return_clause = {
+    RETURN ~ (DISTINCT)? ~ return_item ~ ("," ~ return_item)* ~
+    (SKIP ~ integer)? ~
+    (LIMIT ~ integer)?
+}
+
+return_item = {
+    expression ~ (AS ~ variable)?
+}
+
+// Query
+cypher_query = {
+    SOI ~
+    (match_clause) ~
+    (where_clause)? ~
+    (return_clause)? ~
+    EOI
+}

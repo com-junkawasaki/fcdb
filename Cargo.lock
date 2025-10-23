@@ -916,6 +916,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "fcdb-cas 0.1.0",
+ "fcdb-cypher",
  "fcdb-graph 0.1.0",
  "fcdb-rdf",
  "fcdb-shacl",
@@ -940,6 +941,7 @@ dependencies = [
  "axum",
  "fcdb-cas 0.1.0",
  "fcdb-core 0.1.1",
+ "fcdb-cypher",
  "fcdb-graph 0.1.0",
  "fcdb-rdf",
  "fcdb-shacl",
@@ -1018,6 +1020,19 @@ dependencies = [
  "rand",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "fcdb-cypher"
+version = "0.1.0"
+dependencies = [
+ "fcdb-graph 0.1.0",
+ "pest",
+ "pest_derive",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
 ]
 
 [[package]]

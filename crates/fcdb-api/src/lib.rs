@@ -8,6 +8,7 @@ use async_graphql::{Context, EmptySubscription, Object, Schema, SimpleObject, ID
 use fcdb_graph::{GraphDB, Rid, LabelId, Timestamp};
 use fcdb_rdf::{RdfExporter, SparqlRunner};
 use fcdb_shacl::{validate_shapes, ValidationConfig};
+use fcdb_cypher::execute_cypher;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -151,6 +152,38 @@ pub struct GraphQLViolation {
     pub expected: Option<String>,
     /// Property path if applicable
     pub path: Option<String>,
+}
+
+/// GraphQL representation of Cypher query result
+#[derive(SimpleObject, Serialize, Deserialize)]
+pub struct GraphQLCypherResult {
+    /// Column names
+    pub columns: Vec<String>,
+    /// Result rows
+    pub rows: Vec<serde_json::Value>,
+    /// Query execution statistics
+    pub stats: GraphQLQueryStats,
+}
+
+/// GraphQL representation of query statistics
+#[derive(SimpleObject, Serialize, Deserialize)]
+pub struct GraphQLQueryStats {
+    /// Number of nodes created
+    pub nodes_created: i32,
+    /// Number of nodes deleted
+    pub nodes_deleted: i32,
+    /// Number of relationships created
+    pub relationships_created: i32,
+    /// Number of relationships deleted
+    pub relationships_deleted: i32,
+    /// Number of labels added
+    pub labels_added: i32,
+    /// Number of labels removed
+    pub labels_removed: i32,
+    /// Number of properties set
+    pub properties_set: i32,
+    /// Execution time in milliseconds
+    pub execution_time_ms: i64,
 }
 
 /// GraphQL query root
@@ -307,6 +340,33 @@ impl Query {
 
         Ok(graphql_report)
     }
+
+    /// Execute a Cypher query
+    async fn cypher(&self, ctx: &Context<'_>, query: String) -> async_graphql::Result<GraphQLCypherResult> {
+        let graph = ctx.data::<Arc<RwLock<GraphDB>>>()?;
+        let graph = graph.read().await;
+
+        let result = execute_cypher(&query, &graph).await
+            .map_err(|e| async_graphql::Error::new(format!("Cypher execution error: {:?}", e)))?;
+
+        // Convert internal result to GraphQL representation
+        let graphql_result = GraphQLCypherResult {
+            columns: result.columns,
+            rows: result.rows,
+            stats: GraphQLQueryStats {
+                nodes_created: result.stats.nodes_created as i32,
+                nodes_deleted: result.stats.nodes_deleted as i32,
+                relationships_created: result.stats.relationships_created as i32,
+                relationships_deleted: result.stats.relationships_deleted as i32,
+                labels_added: result.stats.labels_added as i32,
+                labels_removed: result.stats.labels_removed as i32,
+                properties_set: result.stats.properties_set as i32,
+                execution_time_ms: result.stats.execution_time_ms as i64,
+            },
+        };
+
+        Ok(graphql_result)
+    }
 }
 
 /// GraphQL mutation root
@@ -426,6 +486,25 @@ pub const GRAPHQL_SCHEMA: &str = r#"
         path: String
     }
 
+    type CypherResult {
+        columns: [String!]!
+        rows: [Json!]!
+        stats: QueryStats!
+    }
+
+    type QueryStats {
+        nodesCreated: Int!
+        nodesDeleted: Int!
+        relationshipsCreated: Int!
+        relationshipsDeleted: Int!
+        labelsAdded: Int!
+        labelsRemoved: Int!
+        propertiesSet: Int!
+        executionTimeMs: Int!
+    }
+
+    scalar Json
+
     input CreateNodeInput {
         data: String!
     }
@@ -466,6 +545,7 @@ pub const GRAPHQL_SCHEMA: &str = r#"
         search(query: String!): [SearchResult!]!
         sparql(query: String!): String!
         validateShacl(input: ShaclValidateInput!): ValidationReport!
+        cypher(query: String!): CypherResult!
     }
 
     type Mutation {
