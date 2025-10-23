@@ -42,6 +42,7 @@ dist/
 *.deb
 *.rpm
 *.tar.gz
+target-install/
 
 # Docker
 .dockerignore
