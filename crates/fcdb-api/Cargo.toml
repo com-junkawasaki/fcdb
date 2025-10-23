@@ -13,6 +13,7 @@ categories = ["api-bindings", "web-programming"]
 fcdb-core = { path = "../fcdb-core" }
 fcdb-graph = { path = "../fcdb-graph" }
 fcdb-rdf = { path = "../fcdb-rdf", features = ["sparql"] }
+fcdb-shacl = { path = "../fcdb-shacl" }
 
 # GraphQL
 async-graphql = { version = "7.0", features = ["chrono"] }

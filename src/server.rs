@@ -18,6 +18,7 @@ use crate::metrics::MetricsCollector;
 use crate::health::HealthChecker;
 use fcdb_graph::GraphDB;
 use fcdb_rdf::{RdfExporter, SparqlRunner};
+use fcdb_shacl::{validate_shapes, ValidationConfig};
 
 /// Shared application state
 #[derive(Clone)]
@@ -73,6 +74,7 @@ impl Server {
             .route("/status", get(system_status))
             .route("/rdf/export", get(rdf_export))
             .route("/sparql", post(sparql_query))
+            .route("/shacl/validate", post(shacl_validate))
             .layer(TraceLayer::new_for_http())
             .layer(CorsLayer::new().allow_origin(Any))
             .with_state(self.state)
@@ -238,6 +240,45 @@ async fn sparql_query(
     let exporter = RdfExporter::new(&*graph, "https://enishi.local/");
     let runner = SparqlRunner::new(exporter);
     runner.execute(query).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+/// SHACL validation endpoint
+async fn shacl_validate(
+    State(state): State<AppState>,
+    axum::extract::Json(body): axum::extract::Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let shapes = body.get("shapes").and_then(|v| v.as_str()).unwrap_or("");
+    let max_violations = body.get("maxViolations").and_then(|v| v.as_u64()).unwrap_or(100) as usize;
+    let strict_mode = body.get("strictMode").and_then(|v| v.as_bool()).unwrap_or(false);
+
+    let config = ValidationConfig {
+        max_violations,
+        strict_mode,
+    };
+
+    let graph = state.graph_db.read().await;
+    let report = validate_shapes(&*graph, shapes, config).await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Convert to JSON response
+    let response = serde_json::json!({
+        "conforms": report.conforms,
+        "results": report.results.into_iter().map(|r| serde_json::json!({
+            "result": r.result,
+            "violations": r.violations.into_iter().map(|v| serde_json::json!({
+                "constraint": v.constraint,
+                "message": v.message,
+                "value": v.value,
+                "expected": v.expected,
+                "path": v.path
+            })).collect::<Vec<_>>(),
+            "focusNode": r.focus_node,
+            "shapeId": r.shape_id
+        })).collect::<Vec<_>>(),
+        "shapes": report.shapes
+    });
+
+    Ok(Json(response))
 }
 
 #[cfg(test)]

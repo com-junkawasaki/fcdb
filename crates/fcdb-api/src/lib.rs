@@ -7,6 +7,7 @@
 use async_graphql::{Context, EmptySubscription, Object, Schema, SimpleObject, ID};
 use fcdb_graph::{GraphDB, Rid, LabelId, Timestamp};
 use fcdb_rdf::{RdfExporter, SparqlRunner};
+use fcdb_shacl::{validate_shapes, ValidationConfig};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -93,6 +94,63 @@ pub struct TraverseInput {
     pub max_depth: i32,
     /// Historical timestamp (optional)
     pub as_of: Option<String>,
+}
+
+/// SHACL validation input
+#[derive(async_graphql::InputObject)]
+pub struct ShaclValidateInput {
+    /// SHACL shapes in RDF format (Turtle/JSON-LD)
+    pub shapes: String,
+    /// Validation configuration (optional)
+    pub config: Option<ShaclValidationConfig>,
+}
+
+/// SHACL validation configuration
+#[derive(async_graphql::InputObject)]
+pub struct ShaclValidationConfig {
+    /// Maximum violations to report
+    pub max_violations: Option<usize>,
+    /// Fail fast on first violation
+    pub strict_mode: Option<bool>,
+}
+
+/// GraphQL representation of SHACL validation report
+#[derive(SimpleObject, Serialize, Deserialize)]
+pub struct GraphQLValidationReport {
+    /// Whether the data conforms to the shapes
+    pub conforms: bool,
+    /// Validation results
+    pub results: Vec<GraphQLValidationResult>,
+    /// Shape IDs that were validated
+    pub shapes: Vec<String>,
+}
+
+/// GraphQL representation of validation result
+#[derive(SimpleObject, Serialize, Deserialize)]
+pub struct GraphQLValidationResult {
+    /// Whether this result is valid
+    pub result: bool,
+    /// Violations found
+    pub violations: Vec<GraphQLViolation>,
+    /// The node that was validated
+    pub focus_node: String,
+    /// The shape that was used
+    pub shape_id: String,
+}
+
+/// GraphQL representation of violation
+#[derive(SimpleObject, Serialize, Deserialize)]
+pub struct GraphQLViolation {
+    /// Description of the constraint
+    pub constraint: String,
+    /// Human-readable error message
+    pub message: String,
+    /// The actual value that violated
+    pub value: Option<String>,
+    /// What was expected
+    pub expected: Option<String>,
+    /// Property path if applicable
+    pub path: Option<String>,
 }
 
 /// GraphQL query root
@@ -215,6 +273,40 @@ impl Query {
         let runner = SparqlRunner::new(exporter);
         runner.execute(&query).await.map_err(|e| async_graphql::Error::new(e))
     }
+
+    /// Validate data against SHACL shapes
+    async fn validate_shacl(&self, ctx: &Context<'_>, input: ShaclValidateInput) -> async_graphql::Result<GraphQLValidationReport> {
+        let graph = ctx.data::<Arc<RwLock<GraphDB>>>()?;
+        let graph = graph.read().await;
+
+        let config = ValidationConfig {
+            max_violations: input.config.as_ref().and_then(|c| c.max_violations).unwrap_or(100),
+            strict_mode: input.config.as_ref().and_then(|c| c.strict_mode).unwrap_or(false),
+        };
+
+        let report = validate_shapes(&graph, &input.shapes, config).await
+            .map_err(|e| async_graphql::Error::new(format!("SHACL validation error: {:?}", e)))?;
+
+        // Convert internal report to GraphQL representation
+        let graphql_report = GraphQLValidationReport {
+            conforms: report.conforms,
+            results: report.results.into_iter().map(|r| GraphQLValidationResult {
+                result: r.result,
+                violations: r.violations.into_iter().map(|v| GraphQLViolation {
+                    constraint: v.constraint,
+                    message: v.message,
+                    value: v.value,
+                    expected: v.expected,
+                    path: v.path,
+                }).collect(),
+                focus_node: r.focus_node,
+                shape_id: r.shape_id,
+            }).collect(),
+            shapes: report.shapes,
+        };
+
+        Ok(graphql_report)
+    }
 }
 
 /// GraphQL mutation root
@@ -313,6 +405,27 @@ pub const GRAPHQL_SCHEMA: &str = r#"
         score: Float!
     }
 
+    type ValidationReport {
+        conforms: Boolean!
+        results: [ValidationResult!]!
+        shapes: [String!]!
+    }
+
+    type ValidationResult {
+        result: Boolean!
+        violations: [Violation!]!
+        focusNode: String!
+        shapeId: String!
+    }
+
+    type Violation {
+        constraint: String!
+        message: String!
+        value: String
+        expected: String
+        path: String
+    }
+
     input CreateNodeInput {
         data: String!
     }
@@ -336,12 +449,23 @@ pub const GRAPHQL_SCHEMA: &str = r#"
         asOf: String
     }
 
+    input ShaclValidateInput {
+        shapes: String!
+        config: ShaclValidationConfig
+    }
+
+    input ShaclValidationConfig {
+        maxViolations: Int
+        strictMode: Boolean
+    }
+
     type Query {
         node(id: ID!): Node
         nodeAt(id: ID!, asOf: String!): Node
         traverse(input: TraverseInput!): [TraversalResult!]!
         search(query: String!): [SearchResult!]!
         sparql(query: String!): String!
+        validateShacl(input: ShaclValidateInput!): ValidationReport!
     }
 
     type Mutation {

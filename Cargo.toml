@@ -6,6 +6,7 @@ members = [
     "crates/fcdb-cas",
     "crates/fcdb-graph",
     "crates/fcdb-rdf",
+    "crates/fcdb-shacl",
     "crates/fcdb-api",
     "crates/fcdb-tools",
     "validation"
@@ -53,6 +54,7 @@ num_cpus = "1.16"
 # FCDB core components for server (use local workspace)
 fcdb-cas = { path = "crates/fcdb-cas" }
 fcdb-graph = { path = "crates/fcdb-graph" }
+fcdb-shacl = { path = "crates/fcdb-shacl" }
 fcdb-rdf = { path = "crates/fcdb-rdf", features = ["sparql"] }
 
 [build-dependencies]

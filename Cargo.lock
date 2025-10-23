@@ -918,6 +918,7 @@ dependencies = [
  "fcdb-cas 0.1.0",
  "fcdb-graph 0.1.0",
  "fcdb-rdf",
+ "fcdb-shacl",
  "num_cpus",
  "rand",
  "serde",
@@ -941,6 +942,7 @@ dependencies = [
  "fcdb-core 0.1.1",
  "fcdb-graph 0.1.0",
  "fcdb-rdf",
+ "fcdb-shacl",
  "prost 0.12.6",
  "serde",
  "serde_json",
@@ -1060,6 +1062,19 @@ version = "0.1.0"
 dependencies = [
  "fcdb-graph 0.1.0",
  "oxigraph",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "fcdb-shacl"
+version = "0.1.0"
+dependencies = [
+ "fcdb-graph 0.1.0",
+ "fcdb-rdf",
+ "oxigraph",
+ "regex",
  "serde",
  "serde_json",
  "thiserror 1.0.69",
