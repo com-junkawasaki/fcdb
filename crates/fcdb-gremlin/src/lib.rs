@@ -83,12 +83,6 @@ impl TraversalBuilder {
 }
 
 #[derive(Debug, Clone)]
-pub struct Traversal {
-    pub steps: Vec<Step>,
-}
-
-
-#[derive(Debug, Clone)]
 pub struct TraversalResult {
     pub traversers: Vec<traversal::Traverser>,
 }
@@ -116,11 +110,7 @@ impl<'a> TraversalExecutor<'a> {
                     };
 
                     for rid in start_ids {
-                        traversers.push(Traverser {
-                            current: rid,
-                            path: vec![rid],
-                            value: None,
-                        });
+                        traversers.push(Traverser::new(rid));
                     }
                 }
                 _ => return Err(GremlinError::InvalidStart("Traversal must start with V()".to_string())),
@@ -139,11 +129,11 @@ impl<'a> TraversalExecutor<'a> {
                             if label.is_none() || label.as_ref() == Some(&format!("{}", edge.label.0)) {
                                 let mut new_path = traverser.path.clone();
                                 new_path.push(edge.target);
-                                new_traversers.push(Traverser {
-                                    current: edge.target,
-                                    path: new_path,
-                                    value: traverser.value.clone(),
-                                });
+                                let mut new_traverser = Traverser::new_with_path(edge.target, new_path);
+                                if let Some(value) = traverser.get_side_effect("value") {
+                                    new_traverser.attach_side_effect("value".to_string(), value.clone());
+                                }
+                                new_traversers.push(new_traverser);
                             }
                         }
                     }
@@ -161,6 +151,8 @@ impl<'a> TraversalExecutor<'a> {
                                     }
                                 }
                             }
+                        } else {
+                            new_traversers.push(traverser.clone());
                         }
                     }
                     Step::Values(key) => {
@@ -168,7 +160,7 @@ impl<'a> TraversalExecutor<'a> {
                             if let Ok(json) = serde_json::from_slice::<serde_json::Value>(&data) {
                                 if let Some(value) = json.get(&key) {
                                     let mut new_traverser = traverser.clone();
-                                    new_traverser.value = Some(value.clone());
+                                    new_traverser.attach_side_effect("value".to_string(), value.clone());
                                     new_traversers.push(new_traverser);
                                 }
                             }
@@ -176,9 +168,10 @@ impl<'a> TraversalExecutor<'a> {
                     }
                     Step::Path => {
                         let mut new_traverser = traverser.clone();
-                        new_traverser.value = Some(serde_json::Value::Array(
+                        let path_array = serde_json::Value::Array(
                             traverser.path.iter().map(|rid| serde_json::json!(rid.0)).collect()
-                        ));
+                        );
+                        new_traverser.attach_side_effect("value".to_string(), path_array);
                         new_traversers.push(new_traverser);
                     }
                     _ => new_traversers.push(traverser.clone()),

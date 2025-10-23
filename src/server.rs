@@ -20,6 +20,7 @@ use fcdb_graph::GraphDB;
 use fcdb_rdf::{RdfExporter, SparqlRunner};
 use fcdb_shacl::{validate_shapes, ValidationConfig};
 use fcdb_cypher::execute_cypher;
+use fcdb_gremlin::{execute_traversal, g, TraversalBuilder};
 
 /// Shared application state
 #[derive(Clone)]
@@ -77,6 +78,7 @@ impl Server {
             .route("/sparql", post(sparql_query))
             .route("/shacl/validate", post(shacl_validate))
             .route("/cypher", post(cypher_query))
+            .route("/gremlin", post(gremlin_traversal))
             .layer(TraceLayer::new_for_http())
             .layer(CorsLayer::new().allow_origin(Any))
             .with_state(self.state)
@@ -312,6 +314,92 @@ async fn cypher_query(
     });
 
     Ok(Json(response))
+}
+
+/// Gremlin traversal endpoint
+async fn gremlin_traversal(
+    State(state): State<AppState>,
+    axum::extract::Json(body): axum::extract::Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let start = body.get("start").and_then(|v| v.as_str()).unwrap_or("V");
+    let steps = body.get("steps").and_then(|v| v.as_array())
+        .map(|arr| arr.iter().filter_map(|v| v.as_str()).map(|s| s.to_string()).collect::<Vec<_>>())
+        .unwrap_or_default();
+
+    let graph = state.graph_db.read().await;
+
+    // Build traversal from input
+    let mut traversal_builder = g();
+
+    // Parse start step
+    if start == "V" {
+        traversal_builder = traversal_builder.V();
+    } else if start.starts_with("V(") && start.ends_with(")") {
+        let id_str = &start[2..start.len() - 1];
+        if let Ok(id) = id_str.parse::<u64>() {
+            traversal_builder = traversal_builder.V_id(id);
+        } else {
+            return Err(StatusCode::BAD_REQUEST);
+        }
+    } else {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    // Parse and apply steps
+    for step in &steps {
+        traversal_builder = parse_step_for_rest(traversal_builder, step)?;
+    }
+
+    let traversal = traversal_builder.build();
+    let result = execute_traversal(&*graph, traversal).await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Convert to JSON response
+    let response = serde_json::json!({
+        "traversers": result.traversers.into_iter().map(|t| serde_json::json!({
+            "current": t.current.0,
+            "path": t.path.iter().map(|rid| rid.0).collect::<Vec<_>>(),
+            "value": t.get_side_effect("value")
+        })).collect::<Vec<_>>()
+    });
+
+    Ok(Json(response))
+}
+
+fn parse_step_for_rest(builder: TraversalBuilder, step: &str) -> Result<TraversalBuilder, StatusCode> {
+    if step.starts_with("out(") && step.ends_with(")") {
+        let label = &step[4..step.len() - 1];
+        let label_opt = if label.is_empty() { None } else { Some(label.to_string()) };
+        Ok(builder.out(label_opt))
+    } else if step.starts_with("in(") && step.ends_with(")") {
+        let label = &step[3..step.len() - 1];
+        let label_opt = if label.is_empty() { None } else { Some(label.to_string()) };
+        Ok(builder.in_(label_opt))
+    } else if step.starts_with("has(") && step.ends_with(")") {
+        let content = &step[4..step.len() - 1];
+        let parts: Vec<&str> = content.split(',').map(|s| s.trim()).collect();
+        if parts.len() == 2 {
+            let key = parts[0].trim_matches('"');
+            let value_str = parts[1].trim_matches('"');
+            // Simple parsing
+            let value = if value_str.starts_with('"') && value_str.ends_with('"') {
+                serde_json::Value::String(value_str[1..value_str.len()-1].to_string())
+            } else if let Ok(num) = value_str.parse::<i64>() {
+                serde_json::Value::Number(num.into())
+            } else {
+                serde_json::Value::String(value_str.to_string())
+            };
+            Ok(builder.has(key.to_string(), value))
+        } else {
+            Err(StatusCode::BAD_REQUEST)
+        }
+    } else if step == "values(name)" {
+        Ok(builder.values("name".to_string()))
+    } else if step == "path()" {
+        Ok(builder.path())
+    } else {
+        Err(StatusCode::BAD_REQUEST)
+    }
 }
 
 #[cfg(test)]

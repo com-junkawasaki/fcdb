@@ -9,6 +9,7 @@ members = [
     "crates/fcdb-shacl",
     "crates/fcdb-cypher",
     "crates/fcdb-gremlin",
+    "crates/fcdb-owl",
     "crates/fcdb-api",
     "crates/fcdb-tools",
     "validation"
@@ -58,6 +59,7 @@ fcdb-cas = { path = "crates/fcdb-cas" }
 fcdb-graph = { path = "crates/fcdb-graph" }
 fcdb-shacl = { path = "crates/fcdb-shacl" }
 fcdb-cypher = { path = "crates/fcdb-cypher" }
+fcdb-gremlin = { path = "crates/fcdb-gremlin" }
 fcdb-rdf = { path = "crates/fcdb-rdf", features = ["sparql"] }
 
 [build-dependencies]

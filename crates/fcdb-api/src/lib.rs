@@ -9,6 +9,7 @@ use fcdb_graph::{GraphDB, Rid, LabelId, Timestamp};
 use fcdb_rdf::{RdfExporter, SparqlRunner};
 use fcdb_shacl::{validate_shapes, ValidationConfig};
 use fcdb_cypher::execute_cypher;
+use fcdb_gremlin::{execute_traversal, Traversal, g};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -184,6 +185,33 @@ pub struct GraphQLQueryStats {
     pub properties_set: i32,
     /// Execution time in milliseconds
     pub execution_time_ms: i64,
+}
+
+/// GraphQL representation of Gremlin traversal result
+#[derive(SimpleObject, Serialize, Deserialize)]
+pub struct GraphQLGremlinResult {
+    /// Traversers that completed the traversal
+    pub traversers: Vec<GraphQLTraverser>,
+}
+
+/// GraphQL representation of a traverser
+#[derive(SimpleObject, Serialize, Deserialize)]
+pub struct GraphQLTraverser {
+    /// Current node ID
+    pub current: String,
+    /// Path of nodes traversed
+    pub path: Vec<String>,
+    /// Current value (if any)
+    pub value: Option<serde_json::Value>,
+}
+
+/// Input for Gremlin traversal steps
+#[derive(async_graphql::InputObject)]
+pub struct GremlinTraversalInput {
+    /// Starting point - "V" for all vertices, "V(id)" for specific vertex
+    pub start: String,
+    /// Sequence of traversal steps as strings
+    pub steps: Vec<String>,
 }
 
 /// GraphQL query root
@@ -367,6 +395,85 @@ impl Query {
 
         Ok(graphql_result)
     }
+
+    /// Execute a Gremlin traversal
+    async fn gremlin(&self, ctx: &Context<'_>, input: GremlinTraversalInput) -> async_graphql::Result<GraphQLGremlinResult> {
+        let graph = ctx.data::<Arc<RwLock<GraphDB>>>()?;
+        let graph = graph.read().await;
+
+        // Build traversal from input
+        let mut traversal_builder = g();
+
+        // Parse start step
+        if input.start == "V" {
+            traversal_builder = traversal_builder.V();
+        } else if input.start.starts_with("V(") && input.start.ends_with(")") {
+            let id_str = &input.start[2..input.start.len() - 1];
+            if let Ok(id) = id_str.parse::<u64>() {
+                traversal_builder = traversal_builder.V_id(id);
+            } else {
+                return Err(async_graphql::Error::new("Invalid vertex ID in start"));
+            }
+        } else {
+            return Err(async_graphql::Error::new("Invalid start step"));
+        }
+
+        // Parse and apply steps
+        for step in &input.steps {
+            traversal_builder = parse_and_apply_step(traversal_builder, step)?;
+        }
+
+        let traversal = traversal_builder.build();
+        let result = execute_traversal(&graph, traversal).await
+            .map_err(|e| async_graphql::Error::new(format!("Gremlin execution error: {:?}", e)))?;
+
+        // Convert internal result to GraphQL representation
+        let graphql_result = GraphQLGremlinResult {
+            traversers: result.traversers.into_iter().map(|t| GraphQLTraverser {
+                current: t.current.0.to_string(),
+                path: t.path.iter().map(|rid| rid.0.to_string()).collect(),
+                value: t.get_side_effect("value").cloned(),
+            }).collect(),
+        };
+
+        Ok(graphql_result)
+    }
+}
+
+fn parse_and_apply_step(builder: crate::fcdb_gremlin::TraversalBuilder, step: &str) -> Result<crate::fcdb_gremlin::TraversalBuilder, async_graphql::Error> {
+    if step.starts_with("out(") && step.ends_with(")") {
+        let label = &step[4..step.len() - 1];
+        let label_opt = if label.is_empty() { None } else { Some(label.to_string()) };
+        Ok(builder.out(label_opt))
+    } else if step.starts_with("in(") && step.ends_with(")") {
+        let label = &step[3..step.len() - 1];
+        let label_opt = if label.is_empty() { None } else { Some(label.to_string()) };
+        Ok(builder.in_(label_opt))
+    } else if step.starts_with("has(") && step.ends_with(")") {
+        let content = &step[4..step.len() - 1];
+        let parts: Vec<&str> = content.split(',').map(|s| s.trim()).collect();
+        if parts.len() == 2 {
+            let key = parts[0].trim_matches('"');
+            let value_str = parts[1].trim_matches('"');
+            // Simple parsing - in production, would need proper JSON parsing
+            let value = if value_str.starts_with('"') && value_str.ends_with('"') {
+                serde_json::Value::String(value_str[1..value_str.len()-1].to_string())
+            } else if let Ok(num) = value_str.parse::<i64>() {
+                serde_json::Value::Number(num.into())
+            } else {
+                serde_json::Value::String(value_str.to_string())
+            };
+            Ok(builder.has(key.to_string(), value))
+        } else {
+            Err(async_graphql::Error::new("Invalid has() syntax"))
+        }
+    } else if step == "values(name)" {
+        Ok(builder.values("name".to_string()))
+    } else if step == "path()" {
+        Ok(builder.path())
+    } else {
+        Err(async_graphql::Error::new(format!("Unsupported step: {}", step)))
+    }
 }
 
 /// GraphQL mutation root
@@ -505,6 +612,21 @@ pub const GRAPHQL_SCHEMA: &str = r#"
 
     scalar Json
 
+    type GremlinResult {
+        traversers: [Traverser!]!
+    }
+
+    type Traverser {
+        current: String!
+        path: [String!]!
+        value: Json
+    }
+
+    input GremlinTraversalInput {
+        start: String!
+        steps: [String!]!
+    }
+
     input CreateNodeInput {
         data: String!
     }
@@ -546,6 +668,7 @@ pub const GRAPHQL_SCHEMA: &str = r#"
         sparql(query: String!): String!
         validateShacl(input: ShaclValidateInput!): ValidationReport!
         cypher(query: String!): CypherResult!
+        gremlin(input: GremlinTraversalInput!): GremlinResult!
     }
 
     type Mutation {
