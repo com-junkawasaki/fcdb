@@ -8,6 +8,7 @@ members = [
     "crates/fcdb-rdf",
     "crates/fcdb-shacl",
     "crates/fcdb-cypher",
+    "crates/fcdb-gremlin",
     "crates/fcdb-api",
     "crates/fcdb-tools",
     "validation"

@@ -1072,6 +1072,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "fcdb-gremlin"
+version = "0.1.0"
+dependencies = [
+ "fcdb-graph 0.1.0",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
 name = "fcdb-rdf"
 version = "0.1.0"
 dependencies = [
