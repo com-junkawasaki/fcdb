@@ -18,6 +18,11 @@ fcdb-graph = { path = "../crates/fcdb-graph" }
 fcdb-concur = { path = "../crates/fcdb-concur" }
 fcdb-exec = { path = "../crates/fcdb-exec" }
 fcdb-api = { path = "../crates/fcdb-api" }
+fcdb-rdf = { path = "../crates/fcdb-rdf" }
+fcdb-shacl = { path = "../crates/fcdb-shacl" }
+fcdb-cypher = { path = "../crates/fcdb-cypher" }
+fcdb-gremlin = { path = "../crates/fcdb-gremlin" }
+fcdb-owl = { path = "../crates/fcdb-owl" }
 
 # Async runtime
 tokio = { version = "1.0", features = ["full"] }
@@ -46,6 +51,26 @@ path = "rest_api.rs"
 [[example]]
 name = "graphql_api"
 path = "graphql_api.rs"
+
+[[example]]
+name = "sparql_query"
+path = "sparql_query.rs"
+
+[[example]]
+name = "shacl_validate"
+path = "shacl_validate.rs"
+
+[[example]]
+name = "cypher_query"
+path = "cypher_query.rs"
+
+[[example]]
+name = "gremlin_dsl"
+path = "gremlin_dsl.rs"
+
+[[example]]
+name = "owl_reasoning"
+path = "owl_reasoning.rs"
 
 [[bin]]
 name = "phase_c_demo"

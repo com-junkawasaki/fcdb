@@ -51,6 +51,73 @@ Shows how to set up a GraphQL API:
 
 This example demonstrates the schema structure. For a full GraphQL server, use the `fcdb-api` crate.
 
+### Query Language Examples
+
+#### SPARQL (`sparql_query.rs`)
+
+Demonstrates SPARQL query execution against FCDB graphs:
+- SELECT queries for data retrieval
+- CONSTRUCT queries for RDF generation
+- ASK queries for boolean results
+- Integration with oxigraph SPARQL engine
+
+Run with:
+```bash
+cargo run --example sparql_query
+```
+
+#### SHACL Validation (`shacl_validate.rs`)
+
+Shows how to validate RDF data against SHACL shapes:
+- Shape definition in Turtle format
+- Node and property constraints
+- Validation reports and error handling
+- Core SHACL features (datatype, cardinality, patterns)
+
+Run with:
+```bash
+cargo run --example shacl_validate
+```
+
+#### Cypher Queries (`cypher_query.rs`)
+
+Illustrates Cypher query execution on FCDB graphs:
+- Pattern matching with nodes and relationships
+- WHERE clause filtering
+- RETURN projections and aggregations
+- Cypher subset implementation details
+
+Run with:
+```bash
+cargo run --example cypher_query
+```
+
+#### Gremlin DSL (`gremlin_dsl.rs`)
+
+Demonstrates the Gremlin-inspired Rust DSL:
+- Fluent traversal API
+- Step-by-step graph navigation
+- Property filtering and value extraction
+- Path computation and analysis
+
+Run with:
+```bash
+cargo run --example gremlin_dsl
+```
+
+#### OWL Reasoning (`owl_reasoning.rs`)
+
+Shows OWL ontology reasoning and classification:
+- RDFS vocabulary support
+- Class hierarchy reasoning
+- Property domain/range inference
+- RDF triple materialization
+
+Run with:
+```bash
+cargo run --example owl_reasoning
+```
+
 ### Legacy Examples
 
 - `phase_c_demo.rs` - Phase C implementation demo
