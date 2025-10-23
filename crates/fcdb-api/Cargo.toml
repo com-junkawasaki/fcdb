@@ -10,8 +10,9 @@ keywords = ["database", "api", "graphql", "grpc", "rest"]
 categories = ["api-bindings", "web-programming"]
 
 [dependencies]
-fcdb-core = "0.1.1"
-fcdb-graph = "0.1.0"
+fcdb-core = { path = "../fcdb-core" }
+fcdb-graph = { path = "../fcdb-graph" }
+fcdb-rdf = { path = "../fcdb-rdf", features = ["sparql"] }
 
 # GraphQL
 async-graphql = { version = "7.0", features = ["chrono"] }
@@ -39,4 +40,4 @@ tempfile = "3.0"
 tracing = "0.1"
 
 [dev-dependencies]
-fcdb-cas = "0.1.0"
+fcdb-cas = { path = "../fcdb-cas" }

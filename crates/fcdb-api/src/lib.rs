@@ -6,6 +6,7 @@
 
 use async_graphql::{Context, EmptySubscription, Object, Schema, SimpleObject, ID};
 use fcdb_graph::{GraphDB, Rid, LabelId, Timestamp};
+use fcdb_rdf::{RdfExporter, SparqlRunner};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -205,6 +206,15 @@ impl Query {
 
         Ok(results)
     }
+
+    /// Execute a SPARQL query over the RDF projection
+    async fn sparql(&self, ctx: &Context<'_>, query: String) -> async_graphql::Result<String> {
+        let graph = ctx.data::<Arc<RwLock<GraphDB>>>()?;
+        let graph = graph.read().await;
+        let exporter = RdfExporter::new(&graph, "https://enishi.local/");
+        let runner = SparqlRunner::new(exporter);
+        runner.execute(&query).await.map_err(|e| async_graphql::Error::new(e))
+    }
 }
 
 /// GraphQL mutation root
@@ -331,6 +341,7 @@ pub const GRAPHQL_SCHEMA: &str = r#"
         nodeAt(id: ID!, asOf: String!): Node
         traverse(input: TraverseInput!): [TraversalResult!]!
         search(query: String!): [SearchResult!]!
+        sparql(query: String!): String!
     }
 
     type Mutation {

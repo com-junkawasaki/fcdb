@@ -4,17 +4,20 @@ use axum::{
     extract::State,
     http::StatusCode,
     response::Json,
-    routing::get,
+    routing::{get, post},
     Router,
 };
 use serde_json::json;
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
+use tokio::sync::RwLock;
 
 use crate::config::Config;
 use crate::metrics::MetricsCollector;
 use crate::health::HealthChecker;
+use fcdb_graph::GraphDB;
+use fcdb_rdf::{RdfExporter, SparqlRunner};
 
 /// Shared application state
 #[derive(Clone)]
@@ -22,8 +25,7 @@ pub struct AppState {
     pub config: Config,
     pub metrics: Arc<MetricsCollector>,
     pub health: Arc<HealthChecker>,
-    // TODO: Add system components when ready
-    // pub graph_db: Arc<RwLock<GraphDB>>,
+    pub graph_db: Arc<RwLock<GraphDB>>,
 }
 
 /// HTTP server for Own-CFA-Enishi
@@ -36,12 +38,14 @@ impl Server {
         config: Config,
         metrics: Arc<MetricsCollector>,
         health: Arc<HealthChecker>,
+        graph_db: Arc<RwLock<GraphDB>>,
     ) -> Self {
         Self {
             state: AppState {
                 config,
                 metrics,
                 health,
+                graph_db,
             },
         }
     }
@@ -67,6 +71,8 @@ impl Server {
             .route("/metrics", get(metrics_endpoint))
             .route("/version", get(version_info))
             .route("/status", get(system_status))
+            .route("/rdf/export", get(rdf_export))
+            .route("/sparql", post(sparql_query))
             .layer(TraceLayer::new_for_http())
             .layer(CorsLayer::new().allow_origin(Any))
             .with_state(self.state)
@@ -210,6 +216,28 @@ async fn system_status(
             "PROD": "in_progress" // Production Deployment
         }
     }))
+}
+
+/// RDF export endpoint (N-Triples)
+async fn rdf_export(
+    State(state): State<AppState>,
+) -> Result<String, StatusCode> {
+    let graph = state.graph_db.read().await;
+    let exporter = RdfExporter::new(&*graph, "https://enishi.local/");
+    exporter.export_ntriples().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+/// SPARQL query endpoint (returns JSON for SELECT/Boolean, N-Triples for CONSTRUCT)
+async fn sparql_query(
+    State(state): State<AppState>,
+    axum::extract::Json(body): axum::extract::Json<serde_json::Value>,
+) -> Result<String, StatusCode> {
+    let query = body.get("query").and_then(|v| v.as_str()).unwrap_or("");
+    if query.is_empty() { return Err(StatusCode::BAD_REQUEST); }
+    let graph = state.graph_db.read().await;
+    let exporter = RdfExporter::new(&*graph, "https://enishi.local/");
+    let runner = SparqlRunner::new(exporter);
+    runner.execute(query).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 #[cfg(test)]

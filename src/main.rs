@@ -4,6 +4,7 @@
 //! Provides HTTP API endpoints and integrates all system components.
 
 use std::net::SocketAddr;
+use std::sync::Arc;
 use tokio::signal;
 use tracing::{info, warn, error};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -12,6 +13,9 @@ mod config;
 mod server;
 mod metrics;
 mod health;
+use fcdb_cas::PackCAS;
+use fcdb_graph::GraphDB;
+use tokio::sync::RwLock;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -36,14 +40,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize health checker
     let health_checker = std::sync::Arc::new(health::HealthChecker::new());
 
-    // TODO: Initialize system components when ready
-    // let cas = enishi_cas::PackCAS::open(&config.storage_path).await?;
-    // let graph = enishi_graph::GraphDB::new(cas).await;
-    // let executor = enishi_exec::SafeExecutor::new();
+    // Initialize system components
+    let cas = PackCAS::open(&config.storage.path).await?;
+    let graph = Arc::new(RwLock::new(GraphDB::new(cas).await));
 
     // Start HTTP server
     let addr = SocketAddr::from(([0, 0, 0, 0], config.server.port));
-    let server = server::Server::new(config, metrics.clone(), health_checker.clone());
+    let server = server::Server::new(config, metrics.clone(), health_checker.clone(), graph.clone());
 
     info!("🌐 Starting HTTP server on {}", addr);
     let server_handle = tokio::spawn(async move {

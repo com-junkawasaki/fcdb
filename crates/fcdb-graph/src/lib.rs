@@ -318,6 +318,22 @@ impl GraphDB {
         Ok(result)
     }
 
+    /// List all RIDs currently present in the graph
+    /// Merkle DAG: enishi_graph -> rid_to_cid (exposed read-only view)
+    pub async fn list_rids(&self) -> Vec<Rid> {
+        let rid_to_cid = self.rid_to_cid.read().await;
+        let mut rids: Vec<Rid> = rid_to_cid.keys().cloned().collect();
+        rids.sort();
+        rids
+    }
+
+    /// Get outgoing edges from a node (read-only clone)
+    /// Merkle DAG: enishi_graph -> adjacency (exposed read-only view)
+    pub async fn get_edges_from(&self, from: Rid) -> Vec<AdjEntry> {
+        let adj = self.adjacency.read().await;
+        adj.get(&from).cloned().unwrap_or_default()
+    }
+
     /// Search nodes by text content
     pub async fn search(&self, query: &str) -> Result<Vec<(Rid, f32)>, Box<dyn std::error::Error>> {
         let postings = self.postings.read().await;

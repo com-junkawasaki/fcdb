@@ -5,6 +5,7 @@ members = [
     "crates/fcdb-concur",
     "crates/fcdb-cas",
     "crates/fcdb-graph",
+    "crates/fcdb-rdf",
     "crates/fcdb-api",
     "crates/fcdb-tools",
     "validation"
@@ -48,6 +49,11 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Utilities
 num_cpus = "1.16"
+
+# FCDB core components for server (use local workspace)
+fcdb-cas = { path = "crates/fcdb-cas" }
+fcdb-graph = { path = "crates/fcdb-graph" }
+fcdb-rdf = { path = "crates/fcdb-rdf", features = ["sparql"] }
 
 [build-dependencies]
 vergen = { version = "8.0", features = ["build", "cargo", "git", "gix", "rustc"] }

@@ -10,7 +10,7 @@ keywords = ["database", "cas", "storage", "content-addressable"]
 categories = ["filesystem", "database-implementations"]
 
 [dependencies]
-fcdb-core = "0.1.1"
+fcdb-core = { path = "../fcdb-core" }
 
 # File I/O and async
 tokio = { version = "1.0", features = ["fs", "io-util", "macros", "rt-multi-thread"] }
