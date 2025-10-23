@@ -16,6 +16,7 @@ fcdb-rdf = { path = "../fcdb-rdf", features = ["sparql"] }
 fcdb-shacl = { path = "../fcdb-shacl" }
 fcdb-cypher = { path = "../fcdb-cypher" }
 fcdb-gremlin = { path = "../fcdb-gremlin" }
+fcdb-owl = { path = "../fcdb-owl" }
 
 # GraphQL
 async-graphql = { version = "7.0", features = ["chrono"] }

@@ -13,7 +13,7 @@ pub enum RdfError {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct RdfNode(pub String); // IRI or blank node id
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Triple {
     pub s: RdfNode,
     pub p: String,

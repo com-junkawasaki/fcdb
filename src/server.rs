@@ -21,6 +21,7 @@ use fcdb_rdf::{RdfExporter, SparqlRunner};
 use fcdb_shacl::{validate_shapes, ValidationConfig};
 use fcdb_cypher::execute_cypher;
 use fcdb_gremlin::{execute_traversal, g, TraversalBuilder};
+use fcdb_owl::classify_ontology;
 
 /// Shared application state
 #[derive(Clone)]
@@ -79,6 +80,7 @@ impl Server {
             .route("/shacl/validate", post(shacl_validate))
             .route("/cypher", post(cypher_query))
             .route("/gremlin", post(gremlin_traversal))
+            .route("/owl/classify", post(owl_classify))
             .layer(TraceLayer::new_for_http())
             .layer(CorsLayer::new().allow_origin(Any))
             .with_state(self.state)
@@ -400,6 +402,35 @@ fn parse_step_for_rest(builder: TraversalBuilder, step: &str) -> Result<Traversa
     } else {
         Err(StatusCode::BAD_REQUEST)
     }
+}
+
+/// OWL classification endpoint
+async fn owl_classify(
+    State(state): State<AppState>,
+    axum::extract::Json(body): axum::extract::Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let ontology = body.get("ontology").and_then(|v| v.as_str()).unwrap_or("");
+
+    if ontology.is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let graph = state.graph_db.read().await;
+    let inferred_triples = classify_ontology(ontology, &*graph).await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Convert triples to N-Triples format
+    let mut ntriples = Vec::new();
+    for triple in &inferred_triples {
+        ntriples.push(format!("<{}> <{}> <{}> .", triple.s.0, triple.p, triple.o));
+    }
+
+    let response = serde_json::json!({
+        "inferredCount": inferred_triples.len(),
+        "triples": ntriples
+    });
+
+    Ok(Json(response))
 }
 
 #[cfg(test)]

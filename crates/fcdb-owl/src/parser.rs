@@ -1,39 +1,6 @@
-use horned_owl::model::Ontology;
-use horned_owl::ontology::set::SetOntology;
-
-/// Parse OWL ontology from RDF/XML, Turtle, or other formats
-/// Merkle DAG: fcdb_owl -> parse_owl(input) -> ontology
-pub fn parse_owl(input: &str) -> Result<Ontology, String> {
-    // Try parsing as Turtle first (most common)
-    match parse_turtle(input) {
-        Ok(ontology) => Ok(ontology),
-        Err(_) => {
-            // Fallback to RDF/XML
-            parse_rdfxml(input)
-        }
-    }
-}
-
-fn parse_turtle(input: &str) -> Result<Ontology, String> {
-    let ontology = SetOntology::new();
-
-    // For now, return empty ontology - full implementation would use horned-owl parsers
-    // This is a placeholder for the complete OWL parsing functionality
-
-    Ok(ontology.into())
-}
-
-fn parse_rdfxml(input: &str) -> Result<Ontology, String> {
-    let ontology = SetOntology::new();
-
-    // For now, return empty ontology - full implementation would use horned-owl parsers
-    // This is a placeholder for the complete OWL parsing functionality
-
-    Ok(ontology.into())
-}
-
-/// Extract RDFS and basic OWL axioms from ontology
-pub fn extract_rdfs_rules(ontology: &Ontology) -> Vec<RdfsRule> {
+/// Extract RDFS and basic OWL axioms from ontology string
+/// Merkle DAG: fcdb_owl -> extract_rdfs_rules(input) -> rules
+pub fn extract_rdfs_rules(input: &str) -> Vec<RdfsRule> {
     let mut rules = Vec::new();
 
     // Basic RDFS rules (subset)

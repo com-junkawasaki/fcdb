@@ -10,6 +10,7 @@ use fcdb_rdf::{RdfExporter, SparqlRunner};
 use fcdb_shacl::{validate_shapes, ValidationConfig};
 use fcdb_cypher::execute_cypher;
 use fcdb_gremlin::{execute_traversal, Traversal, g};
+use fcdb_owl::classify_ontology;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -212,6 +213,22 @@ pub struct GremlinTraversalInput {
     pub start: String,
     /// Sequence of traversal steps as strings
     pub steps: Vec<String>,
+}
+
+/// GraphQL representation of OWL classification result
+#[derive(SimpleObject, Serialize, Deserialize)]
+pub struct GraphQLOwlResult {
+    /// Number of inferred triples added
+    pub inferred_count: i32,
+    /// The inferred triples in N-Triples format
+    pub triples: Vec<String>,
+}
+
+/// Input for OWL classification
+#[derive(async_graphql::InputObject)]
+pub struct OwlClassifyInput {
+    /// OWL ontology in Turtle or RDF/XML format
+    pub ontology: String,
 }
 
 /// GraphQL query root
@@ -438,6 +455,28 @@ impl Query {
 
         Ok(graphql_result)
     }
+
+    /// Classify ontology and return inferred triples
+    async fn classify_owl(&self, ctx: &Context<'_>, input: OwlClassifyInput) -> async_graphql::Result<GraphQLOwlResult> {
+        let graph = ctx.data::<Arc<RwLock<GraphDB>>>()?;
+        let graph = graph.read().await;
+
+        let inferred_triples = classify_ontology(&input.ontology, &graph).await
+            .map_err(|e| async_graphql::Error::new(format!("OWL classification error: {:?}", e)))?;
+
+        // Convert triples to N-Triples format
+        let mut ntriples = Vec::new();
+        for triple in &inferred_triples {
+            ntriples.push(format!("<{}> <{}> <{}> .", triple.s.0, triple.p, triple.o));
+        }
+
+        let graphql_result = GraphQLOwlResult {
+            inferred_count: inferred_triples.len() as i32,
+            triples: ntriples,
+        };
+
+        Ok(graphql_result)
+    }
 }
 
 fn parse_and_apply_step(builder: crate::fcdb_gremlin::TraversalBuilder, step: &str) -> Result<crate::fcdb_gremlin::TraversalBuilder, async_graphql::Error> {
@@ -627,6 +666,15 @@ pub const GRAPHQL_SCHEMA: &str = r#"
         steps: [String!]!
     }
 
+    type OwlResult {
+        inferredCount: Int!
+        triples: [String!]!
+    }
+
+    input OwlClassifyInput {
+        ontology: String!
+    }
+
     input CreateNodeInput {
         data: String!
     }
@@ -669,6 +717,7 @@ pub const GRAPHQL_SCHEMA: &str = r#"
         validateShacl(input: ShaclValidateInput!): ValidationReport!
         cypher(query: String!): CypherResult!
         gremlin(input: GremlinTraversalInput!): GremlinResult!
+        classifyOwl(input: OwlClassifyInput!): OwlResult!
     }
 
     type Mutation {

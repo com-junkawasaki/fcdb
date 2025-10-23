@@ -6,7 +6,6 @@ pub mod reasoner;
 
 use fcdb_graph::GraphDB;
 use fcdb_rdf::{RdfExporter, RdfNode, Triple};
-use horned_owl::model::Ontology;
 use std::collections::HashSet;
 
 /// Classify ontology and materialize inferred triples
@@ -15,11 +14,8 @@ pub async fn classify_ontology(
     owl_input: &str,
     graph: &GraphDB,
 ) -> Result<Vec<Triple>, OwlError> {
-    // Parse OWL ontology
-    let ontology = parser::parse_owl(owl_input)?;
-
-    // Create reasoner with RDFS/OWL-RL subset
-    let reasoner = reasoner::SubsetReasoner::new(ontology);
+    // Parse OWL ontology (simplified - just extract basic rules)
+    let rules = parser::extract_rdfs_rules(owl_input);
 
     // Get current graph as RDF triples
     let exporter = RdfExporter::new(graph, "https://enishi.local/");
@@ -30,7 +26,7 @@ pub async fn classify_ontology(
     let data_triples = parse_ntriples(&current_triples)?;
 
     // Apply reasoning rules
-    let inferred_triples = reasoner.apply_rules(data_triples)?;
+    let inferred_triples = reasoner::apply_rdfs_rules(data_triples, rules)?;
 
     Ok(inferred_triples)
 }
@@ -52,9 +48,9 @@ fn parse_ntriples(ntriples: &str) -> Result<Vec<Triple>, OwlError> {
 
             if parts.len() >= 3 {
                 let subject = if parts[0].starts_with('<') && parts[0].ends_with('>') {
-                    RdfNode::from(&parts[0][1..parts[0].len()-1])
+                    RdfNode(parts[0][1..parts[0].len()-1].to_string())
                 } else {
-                    RdfNode::from("_:blank") // Simplified
+                    RdfNode("_:blank".to_string()) // Simplified
                 };
 
                 let predicate = if parts[1].starts_with('<') && parts[1].ends_with('>') {
@@ -64,12 +60,12 @@ fn parse_ntriples(ntriples: &str) -> Result<Vec<Triple>, OwlError> {
                 };
 
                 let object = if parts[2].starts_with('<') && parts[2].ends_with('>') {
-                    RdfNode::from(&parts[2][1..parts[2].len()-1])
+                    RdfNode(parts[2][1..parts[2].len()-1].to_string())
                 } else if parts[2].starts_with('"') {
                     // Literal
-                    RdfNode::from("literal") // Simplified
+                    RdfNode("literal".to_string()) // Simplified
                 } else {
-                    RdfNode::from("_:blank") // Simplified
+                    RdfNode("_:blank".to_string()) // Simplified
                 };
 
                 triples.push(Triple {
@@ -84,11 +80,6 @@ fn parse_ntriples(ntriples: &str) -> Result<Vec<Triple>, OwlError> {
     Ok(triples)
 }
 
-impl From<&str> for RdfNode {
-    fn from(s: &str) -> Self {
-        RdfNode(s.to_string())
-    }
-}
 
 #[derive(Debug, thiserror::Error)]
 pub enum OwlError {
@@ -100,4 +91,10 @@ pub enum OwlError {
     Rdf(String),
     #[error("Graph error: {0}")]
     Graph(String),
+}
+
+impl From<String> for OwlError {
+    fn from(s: String) -> Self {
+        OwlError::Reasoning(s)
+    }
 }

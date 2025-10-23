@@ -60,6 +60,7 @@ fcdb-graph = { path = "crates/fcdb-graph" }
 fcdb-shacl = { path = "crates/fcdb-shacl" }
 fcdb-cypher = { path = "crates/fcdb-cypher" }
 fcdb-gremlin = { path = "crates/fcdb-gremlin" }
+fcdb-owl = { path = "crates/fcdb-owl" }
 fcdb-rdf = { path = "crates/fcdb-rdf", features = ["sparql"] }
 
 [build-dependencies]
